@@ -1,0 +1,83 @@
+name: Deploy Frontend to Hostinger
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build for production
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_PUSHER_APP_KEY: ${{ secrets.VITE_PUSHER_APP_KEY }}
+          VITE_PUSHER_APP_CLUSTER: ${{ secrets.VITE_PUSHER_APP_CLUSTER }}
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy dist to Hostinger via rsync
+        env:
+          REMOTE: ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}
+          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          PATH_FRONT: ${{ secrets.HOSTINGER_FRONTEND_PATH }}
+        run: |
+          rsync -avz --delete \
+            --exclude='.htaccess' \
+            -e "ssh -p ${PORT}" \
+            dist/ "${REMOTE}:${PATH_FRONT}/"
+
+      - name: Ensure .htaccess for SPA routing
+        env:
+          REMOTE: ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}
+          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          PATH_FRONT: ${{ secrets.HOSTINGER_FRONTEND_PATH }}
+        run: |
+          ssh -p ${PORT} ${REMOTE} "test -f ${PATH_FRONT}/.htaccess || cat > ${PATH_FRONT}/.htaccess << 'HTACCESS'
+          RewriteEngine On
+          RewriteBase /
+          RewriteCond %{HTTPS} off
+          RewriteRule ^(.*)\$ https://%{HTTP_HOST}/\$1 [R=301,L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^(.*)\$ /index.html [QSA,L]
+          <IfModule mod_expires.c>
+            ExpiresActive On
+            ExpiresByType text/css \"access plus 1 year\"
+            ExpiresByType application/javascript \"access plus 1 year\"
+            ExpiresByType image/png \"access plus 1 year\"
+            ExpiresByType image/svg+xml \"access plus 1 year\"
+            ExpiresByType font/woff2 \"access plus 1 year\"
+          </IfModule>
+          <IfModule mod_deflate.c>
+            AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+          </IfModule>
+          <IfModule mod_headers.c>
+            Header set X-Content-Type-Options \"nosniff\"
+            Header set X-Frame-Options \"DENY\"
+            Header set X-XSS-Protection \"1; mode=block\"
+            Header set Referrer-Policy \"strict-origin-when-cross-origin\"
+          </IfModule>
+          HTACCESS"
+          echo "Frontend deployed at $(date)"
