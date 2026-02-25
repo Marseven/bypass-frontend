@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { enqueue, flush } from '@/utils/offlineQueue';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://bypass-api.jobs-conseil.host/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://bypass-api.jobs-conseil.host/api/v1',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
