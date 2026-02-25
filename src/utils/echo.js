@@ -40,7 +40,9 @@ const createEcho = () => {
 
     const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY || process.env.VITE_PUSHER_APP_KEY;
     const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER || process.env.VITE_PUSHER_APP_CLUSTER || 'mt1';
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://bypass-api.jobs-conseil.host';
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://bypass-api.jobs-conseil.host/api/v1';
+    // Broadcasting auth is not under /v1 prefix — use base API URL
+    const baseUrl = apiUrl.replace(/\/v1\/?$/, '');
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
     try {
@@ -50,7 +52,7 @@ const createEcho = () => {
             cluster: pusherCluster,
             forceTLS: !isLocal,
             encrypted: !isLocal,
-            authEndpoint: `${apiUrl}/broadcasting/auth`,
+            authEndpoint: `${baseUrl}/broadcasting/auth`,
             auth: {
                 headers: {
                     Authorization: `Bearer ${token}`,
