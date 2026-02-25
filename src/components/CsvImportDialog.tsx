@@ -57,7 +57,7 @@ const CsvImportDialog: React.FC<CsvImportDialogProps> = ({
   const [isLoadingInfo, setIsLoadingInfo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const labels = importTypeLabels[importType];
+  const labels = importTypeLabels[importType] || { singular: 'Élément', plural: 'Éléments', description: 'Importez depuis un fichier CSV' };
 
   // Charger les infos d'import au premier rendu
   React.useEffect(() => {
