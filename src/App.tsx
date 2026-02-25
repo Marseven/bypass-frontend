@@ -26,6 +26,7 @@ import Zones from "./pages/Zones";
 import Equipment from "./pages/Equipment";
 import Users from "./pages/Users";
 import Sensors from "./pages/Sensors";
+import EditSensor from "./pages/EditSensor";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import RolesPermissions from "./pages/RolesPermissions";
@@ -138,6 +139,11 @@ const App = () => (
             <Route path="/sensors" element={
               <ProtectedRoute  allowedRoles={['administrator']}>
                 <Layout><Sensors /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/sensors/:id/edit" element={
+              <ProtectedRoute  allowedRoles={['administrator']}>
+                <Layout><EditSensor /></Layout>
               </ProtectedRoute>
             } />
             <Route path="/settings" element={
