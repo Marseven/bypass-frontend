@@ -1,0 +1,6 @@
+import{c as a,G as t,r,j as e,B as c,L as o}from"./index-Cm5HjFIo.js";import{C as n,b as d,c as l,d as i,a as u}from"./card-C-b0mMpV.js";/**
+ * @license lucide-react v0.462.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const x=a("House",[["path",{d:"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8",key:"5wwlr5"}],["path",{d:"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",key:"1d0kgt"}]]),p=()=>{const s=t();return r.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",s.pathname)},[s.pathname]),e.jsx("div",{className:"min-h-screen flex items-center justify-center bg-background p-4",children:e.jsxs(n,{className:"w-full max-w-md text-center",children:[e.jsxs(d,{children:[e.jsx(l,{className:"text-6xl font-bold text-muted-foreground",children:"404"}),e.jsx(i,{className:"text-lg",children:"Page non trouvée"})]}),e.jsxs(u,{className:"space-y-4",children:[e.jsx("p",{className:"text-muted-foreground",children:"La page que vous recherchez n'existe pas ou a été déplacée."}),e.jsx(c,{asChild:!0,children:e.jsxs(o,{to:"/",children:[e.jsx(x,{className:"w-4 h-4 mr-2"}),"Retour à l'accueil"]})})]})]})})};export{p as default};
