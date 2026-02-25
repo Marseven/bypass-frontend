@@ -9,53 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy via git pull on server
-        env:
-          REMOTE: ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}
-          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
-          PATH_FRONT: ${{ secrets.HOSTINGER_FRONTEND_PATH }}
-        run: |
-          ssh -p ${PORT} ${REMOTE} "cd ${PATH_FRONT} && git pull origin main && cp -r dist/* . && cp -r dist/.* . 2>/dev/null; true"
-
-      - name: Ensure .htaccess for SPA routing
-        env:
-          REMOTE: ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}
-          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
-          PATH_FRONT: ${{ secrets.HOSTINGER_FRONTEND_PATH }}
-        run: |
-          ssh -p ${PORT} ${REMOTE} "test -f ${PATH_FRONT}/.htaccess || cat > ${PATH_FRONT}/.htaccess << 'HTACCESS'
-          RewriteEngine On
-          RewriteBase /
-          RewriteCond %{HTTPS} off
-          RewriteRule ^(.*)\$ https://%{HTTP_HOST}/\$1 [R=301,L]
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule ^(.*)\$ /index.html [QSA,L]
-          <IfModule mod_expires.c>
-            ExpiresActive On
-            ExpiresByType text/css \"access plus 1 year\"
-            ExpiresByType application/javascript \"access plus 1 year\"
-            ExpiresByType image/png \"access plus 1 year\"
-            ExpiresByType image/svg+xml \"access plus 1 year\"
-            ExpiresByType font/woff2 \"access plus 1 year\"
-          </IfModule>
-          <IfModule mod_deflate.c>
-            AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
-          </IfModule>
-          <IfModule mod_headers.c>
-            Header set X-Content-Type-Options \"nosniff\"
-            Header set X-Frame-Options \"DENY\"
-            Header set X-XSS-Protection \"1; mode=block\"
-            Header set Referrer-Policy \"strict-origin-when-cross-origin\"
-          </IfModule>
-          HTACCESS"
-          echo "Frontend deployed at $(date)"
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd /home/u566067487/domains/bypass.jobs-conseil.host/public_html
+            git pull origin main
+            cp -r dist/* . && cp -r dist/.* . 2>/dev/null; true
+            test -f .htaccess && echo ".htaccess OK" || cp .htaccess.production .htaccess 2>/dev/null || echo "WARNING: .htaccess missing"
+            echo "Frontend deployed at $(date)"
