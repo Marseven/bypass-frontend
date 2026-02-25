@@ -5,30 +5,11 @@ on:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build for production
-        run: npm run build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_PUSHER_APP_KEY: ${{ secrets.VITE_PUSHER_APP_KEY }}
-          VITE_PUSHER_APP_CLUSTER: ${{ secrets.VITE_PUSHER_APP_CLUSTER }}
 
       - name: Setup SSH key
         run: |
@@ -37,16 +18,13 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy dist to Hostinger via rsync
+      - name: Deploy via git pull on server
         env:
           REMOTE: ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}
           PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           PATH_FRONT: ${{ secrets.HOSTINGER_FRONTEND_PATH }}
         run: |
-          rsync -avz --delete \
-            --exclude='.htaccess' \
-            -e "ssh -p ${PORT}" \
-            dist/ "${REMOTE}:${PATH_FRONT}/"
+          ssh -p ${PORT} ${REMOTE} "cd ${PATH_FRONT} && git pull origin main && cp -r dist/* . && cp -r dist/.* . 2>/dev/null; true"
 
       - name: Ensure .htaccess for SPA routing
         env:
