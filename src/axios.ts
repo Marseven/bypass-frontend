@@ -4,11 +4,10 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { enqueue, flush } from '@/utils/offlineQueue';
 
 const api = axios.create({
-  baseURL: 'https://bypass-api.jobs-conseil.host/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://bypass-api.jobs-conseil.host/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    "ngrok-skip-browser-warning": "true"
   },
   withCredentials: true,
 });
