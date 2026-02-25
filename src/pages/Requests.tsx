@@ -10,9 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
-  Search, 
-  Filter, 
+import {
+  Search,
+  Filter,
   Plus,
   FileText,
   Clock,
@@ -22,13 +22,13 @@ import {
   Eye,
   ArrowLeft,
   Calendar,
+  Activity,
 } from "lucide-react"
 import { BypassRequestForm } from "@/components/forms/BypassRequestForm"
 import { RequestDetailsModal } from "@/components/RequestDetailsModal"
 import api from '../axios'
 import type { Equipment, EquipmentType, EquipmentStatus, CriticalityLevel, Zone } from '@/types/equipment';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../store/store';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
@@ -93,7 +93,7 @@ export default function Requests() {
   const [isLoadingMine, setIsLoadingMine] = useState(true);
   const [isLoadingPending, setIsLoadingPending] = useState(false);
   const [isLoadingActive, setIsLoadingActive] = useState(false);
-  const { users, loading, error, user } = useSelector((state: RootState) => state.user);
+  const { user } = useAuthStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [activeTab, setActiveTab] = useState(user?.role !== 'user' ? "mine" : "mine");
@@ -261,7 +261,7 @@ export default function Requests() {
 
   useEffect(() => {
     
-    if(user && user.role === 'administrator'){
+    if(user && ['administrateur', 'administrator'].includes(user.role)){
         // Pour l'administrateur, récupérer toutes les demandes du système
         setIsLoadingAll(true);
         api.get('/requests')
@@ -284,7 +284,7 @@ export default function Requests() {
         });
     }
 
-    if(user && (user.role === 'administrator' || user.role === 'supervisor')){
+    if(user && ['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director'].includes(user.role)){
         setIsLoadingPending(true);
         api.get('/requests/pending')
         .then(response => {
@@ -367,24 +367,24 @@ export default function Requests() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "En attente": return "bg-warning text-warning-foreground"
+      case "draft": return "bg-muted text-muted-foreground"
       case "pending": return "bg-warning text-warning-foreground"
-      case "Approuvé": return "bg-success text-success-foreground"
-      case "approved": return "bg-success text-success-foreground"
-      case "En cours": return "bg-primary text-primary-foreground"
-      case "in_progress": return "bg-primary text-primary-foreground"
+      case "approved": return "bg-blue-500 text-white"
+      case "active": return "bg-green-600 text-white"
+      case "closed": return "bg-gray-600 text-white"
+      case "expired": return "bg-orange-500 text-white"
+      case "rejected": return "bg-destructive text-destructive-foreground"
       default: return "bg-muted text-muted-foreground"
     }
   }
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "En attente": return <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
+      case "draft": return <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
       case "pending": return <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
-      case "Approuvé": return <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
       case "approved": return <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-      case "En cours": return <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
-      case "in_progress": return <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
-      case "Rejeté": return <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+      case "active": return <Activity className="w-5 h-5 sm:w-6 sm:h-6" />
+      case "closed": return <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+      case "expired": return <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
       case "rejected": return <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
       default: return <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
     }
@@ -520,9 +520,12 @@ export default function Requests() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Tous les statuts</SelectItem>
+                      <SelectItem value="draft">Brouillon</SelectItem>
                       <SelectItem value="pending">En attente</SelectItem>
-                      <SelectItem value="in_progress">En cours</SelectItem>
-                      <SelectItem value="approuved">Approuvé</SelectItem>
+                      <SelectItem value="approved">Approuvé</SelectItem>
+                      <SelectItem value="active">Actif</SelectItem>
+                      <SelectItem value="closed">Clôturé</SelectItem>
+                      <SelectItem value="expired">Expiré</SelectItem>
                       <SelectItem value="rejected">Rejeté</SelectItem>
                     </SelectContent>
                   </Select>
@@ -937,9 +940,12 @@ export default function Requests() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Tous les statuts</SelectItem>
+                          <SelectItem value="draft">Brouillon</SelectItem>
                           <SelectItem value="pending">En attente</SelectItem>
-                          <SelectItem value="in_progress">En cours</SelectItem>
-                          <SelectItem value="approuved">Approuvé</SelectItem>
+                          <SelectItem value="approved">Approuvé</SelectItem>
+                          <SelectItem value="active">Actif</SelectItem>
+                          <SelectItem value="closed">Clôturé</SelectItem>
+                          <SelectItem value="expired">Expiré</SelectItem>
                           <SelectItem value="rejected">Rejeté</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1268,9 +1274,12 @@ export default function Requests() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Tous les statuts</SelectItem>
+                          <SelectItem value="draft">Brouillon</SelectItem>
                           <SelectItem value="pending">En attente</SelectItem>
-                          <SelectItem value="in_progress">En cours</SelectItem>
-                          <SelectItem value="approuved">Approuvé</SelectItem>
+                          <SelectItem value="approved">Approuvé</SelectItem>
+                          <SelectItem value="active">Actif</SelectItem>
+                          <SelectItem value="closed">Clôturé</SelectItem>
+                          <SelectItem value="expired">Expiré</SelectItem>
                           <SelectItem value="rejected">Rejeté</SelectItem>
                         </SelectContent>
                       </Select>
@@ -1682,9 +1691,12 @@ export default function Requests() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Tous les statuts</SelectItem>
+                          <SelectItem value="draft">Brouillon</SelectItem>
                           <SelectItem value="pending">En attente</SelectItem>
-                          <SelectItem value="in_progress">En cours</SelectItem>
-                          <SelectItem value="approuved">Approuvé</SelectItem>
+                          <SelectItem value="approved">Approuvé</SelectItem>
+                          <SelectItem value="active">Actif</SelectItem>
+                          <SelectItem value="closed">Clôturé</SelectItem>
+                          <SelectItem value="expired">Expiré</SelectItem>
                           <SelectItem value="rejected">Rejeté</SelectItem>
                         </SelectContent>
                       </Select>

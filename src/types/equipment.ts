@@ -3,6 +3,12 @@ export interface Equipment {
   name: string;
   code?: string;
   type: EquipmentType;
+  type_systeme?: SystemType;
+  type_systeme_label?: string;
+  niveau_sil?: SilLevel;
+  niveau_sil_label?: string;
+  fonction_securite?: string;
+  is_security_equipment?: boolean;
   zone: string;
   location?: string;
   fabricant: string;
@@ -17,6 +23,8 @@ export interface Equipment {
 
 export interface Zone {
   id: string;
+  site_id?: number;
+  site?: import('./site').Site;
   name: string;
   description: string;
   equipmentCount: number;
@@ -45,13 +53,17 @@ export interface BypassHistory {
   requestId: string;
   startDate: Date;
   endDate?: Date;
-  duration: number; // in hours
+  duration: number;
   reason: string;
   approvedBy: string;
   status: 'active' | 'completed' | 'expired';
 }
 
-export type EquipmentType = 
+export type SystemType = 'process' | 'securite' | 'feu_gaz';
+
+export type SilLevel = 'na' | 'sil1' | 'sil2' | 'sil3';
+
+export type EquipmentType =
   | 'conveyor'
   | 'crusher'
   | 'pump'
@@ -61,7 +73,7 @@ export type EquipmentType =
   | 'truck'
   | 'drill';
 
-export type SensorType = 
+export type SensorType =
   | 'temperature'
   | 'vibration'
   | 'pressure'
@@ -71,21 +83,21 @@ export type SensorType =
   | 'current'
   | 'voltage';
 
-export type EquipmentStatus = 
+export type EquipmentStatus =
   | 'operational'
   | 'maintenance'
   | 'down'
   | 'standby';
 
-export type SensorStatus = 
+export type SensorStatus =
   | 'active'
   | 'bypassed'
   | 'maintenance'
   | 'faulty'
   | 'calibration';
 
-export type CriticalityLevel = 
+export type CriticalityLevel =
   | 'low'
-  | 'medium' 
+  | 'medium'
   | 'high'
   | 'critical';

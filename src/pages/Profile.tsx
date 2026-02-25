@@ -7,9 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { User, Mail, Phone, Shield, Calendar, Eye, EyeOff, Save, Edit, Lock, UserCircle, ArrowLeft } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store/store';
-import { updateUser } from '../store/users';
+import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 import api from '../axios';
 import { Link } from 'react-router-dom';
@@ -26,8 +24,7 @@ const extractNames = (fullName: string | undefined) => {
 };
 
 const Profile: React.FC = () => {
-  const { user } = useSelector((state: RootState) => state.user);
-  const dispatch = useDispatch();
+  const { user, updateUser } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
@@ -106,11 +103,11 @@ const Profile: React.FC = () => {
       
       if (response.data) {
         // Mettre à jour le store Redux avec les nouvelles informations
-        dispatch(updateUser({
+        updateUser({
           full_name: fullName,
           email: formData.email,
           phone: formData.phone || user?.phone || ''
-        }));
+        });
         toast.success('Profil mis à jour avec succès');
         setIsEditing(false);
         // Réinitialiser les champs de mot de passe

@@ -1,4 +1,17 @@
-export type UserRole = 'user' | 'supervisor' | 'director' | 'administrator';
+export type UserRole =
+  | 'operateur'
+  | 'technicien'
+  | 'instrumentiste'
+  | 'chef_de_quart'
+  | 'responsable_hse'
+  | 'resp_exploitation'
+  | 'directeur'
+  | 'administrateur'
+  // Legacy roles (backward compatibility)
+  | 'user'
+  | 'supervisor'
+  | 'director'
+  | 'administrator';
 
 export interface User {
   id: string;
@@ -14,8 +27,8 @@ export interface User {
   employeeId?: string;
   isActive: boolean;
   lastLogin?: Date;
-  spatie_roles?: string[]; // Rôles Spatie assignés à l'utilisateur
-  spatie_permissions?: string[]; // Permissions Spatie de l'utilisateur
+  spatie_roles?: string[];
+  spatie_permissions?: string[];
 }
 
 export interface UserPermissions {
@@ -31,22 +44,18 @@ export interface UserPermissions {
   canCancelRequest: boolean;
   canViewDashboard: boolean;
   canManageRoles: boolean;
-  // Permissions pour les équipements
   canViewEquipment: boolean;
   canCreateEquipment: boolean;
   canUpdateEquipment: boolean;
   canDeleteEquipment: boolean;
-  // Permissions pour les utilisateurs
   canViewUser: boolean;
   canCreateUser: boolean;
   canUpdateUser: boolean;
   canDeleteUser: boolean;
-  // Permissions pour les zones
   canViewZone: boolean;
   canCreateZone: boolean;
   canUpdateZone: boolean;
   canDeleteZone: boolean;
-  // Permissions pour les capteurs
   canViewSensor: boolean;
   canCreateSensor: boolean;
   canUpdateSensor: boolean;
@@ -59,7 +68,7 @@ export interface BypassRequest {
   sensorId: string;
   initiatorId: string;
   reason: string;
-  duration: number; // in hours
+  duration: number;
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'level1_review' | 'level2_review' | 'approved' | 'rejected' | 'expired';
   createdAt: Date;

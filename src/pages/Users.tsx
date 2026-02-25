@@ -37,7 +37,7 @@ const Users: React.FC = () => {
     lastName: '',
     username: '',
     email: '',
-    role: 'user' as UserRole,
+    role: 'operateur' as UserRole,
     department: '',
     full_name: '',
     password: '',
@@ -47,7 +47,7 @@ const Users: React.FC = () => {
     employeeId: ''
   });
 
-  const departments = ['user', 'supervisor', 'director', 'administrator'];
+  const departments = ['operateur', 'technicien', 'instrumentiste', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur'];
 
   const filteredUsers = users.filter(user => {
     const fullName = user.full_name || `${user.firstName || ''} ${user.lastName || ''}`.trim();
@@ -279,21 +279,35 @@ const Users: React.FC = () => {
 
   const getRoleBadgeVariant = (role: UserRole) => {
     switch (role) {
-      case 'user': return 'default';
-      case 'supervisor': return 'secondary';
-      case 'director': return 'outline';
+      case 'administrateur': case 'administrator': return 'destructive';
+      case 'directeur': case 'director': return 'default';
+      case 'resp_exploitation': return 'default';
+      case 'responsable_hse': return 'secondary';
+      case 'chef_de_quart': case 'supervisor': return 'secondary';
+      case 'instrumentiste': return 'outline';
+      case 'technicien': return 'outline';
+      case 'operateur': case 'user': return 'outline';
       default: return 'outline';
     }
   };
 
+  const ROLE_LABELS: Record<string, string> = {
+    operateur: 'Opérateur',
+    technicien: 'Technicien',
+    instrumentiste: 'Instrumentiste',
+    chef_de_quart: 'Chef de quart',
+    responsable_hse: 'Responsable HSE',
+    resp_exploitation: 'Resp. Exploitation',
+    directeur: 'Directeur',
+    administrateur: 'Administrateur',
+    user: 'Utilisateur',
+    supervisor: 'Superviseur',
+    director: 'Directeur',
+    administrator: 'Administrateur',
+  };
+
   const getRoleLabel = (role: UserRole) => {
-    switch (role) {
-      // case 'director': return 'Directeur';
-      case 'director': return 'Approbateur N2';
-      case 'supervisor': return 'Approbateur N1';
-      case 'user': return 'Demandeur';
-      default: return role;
-    }
+    return ROLE_LABELS[role] || role;
   };
 
   const getUsersList = async () => {
@@ -415,7 +429,7 @@ const Users: React.FC = () => {
                   lastName: '',
                   username: '',
                   email: '',
-                  role: 'user',
+                  role: 'operateur',
                   department: '',
                   full_name: '',
                   password: '',
@@ -550,10 +564,14 @@ const Users: React.FC = () => {
                       <SelectValue placeholder="Sélectionner un rôle" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">Demandeur</SelectItem>
-                      <SelectItem value="supervisor">Approbateur N1</SelectItem>
-                      <SelectItem value="director">Approbateur N2</SelectItem>
-                      <SelectItem value="administrator">Administrateur</SelectItem>
+                      <SelectItem value="operateur">Opérateur</SelectItem>
+                      <SelectItem value="technicien">Technicien</SelectItem>
+                      <SelectItem value="instrumentiste">Instrumentiste</SelectItem>
+                      <SelectItem value="chef_de_quart">Chef de quart</SelectItem>
+                      <SelectItem value="responsable_hse">Responsable HSE</SelectItem>
+                      <SelectItem value="resp_exploitation">Resp. Exploitation</SelectItem>
+                      <SelectItem value="directeur">Directeur</SelectItem>
+                      <SelectItem value="administrateur">Administrateur</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -568,7 +586,7 @@ const Users: React.FC = () => {
                     lastName: '',
                     username: '',
                     email: '',
-                    role: 'user',
+                    role: 'operateur',
                     department: '',
                     full_name: '',
                     password: '',

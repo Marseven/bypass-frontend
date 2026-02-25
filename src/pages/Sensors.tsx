@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Pencil, Trash2, Search, Download, Loader2, Radio, AlertTriangle, Activity } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Download, Loader2, Radio, AlertTriangle, Activity, Eye } from 'lucide-react';
 import { Sensor, SensorType, SensorStatus } from '@/types/equipment';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
@@ -293,6 +293,9 @@ const Sensors: React.FC = () => {
                       <TableCell>{getStatusBadge(s.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/sensors/${s.id}`)}>
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/sensors/${s.id}/edit`)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>

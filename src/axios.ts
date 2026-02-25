@@ -1,62 +1,69 @@
 // src/api/axios.ts
 import axios from 'axios';
-import { store } from '@/store/store'; // ton Redux store
-import { logout } from '@/store/users';
-
+import { useAuthStore } from '@/store/useAuthStore';
+import { enqueue, flush } from '@/utils/offlineQueue';
 
 const api = axios.create({
   baseURL: 'https://bypass-api.jobs-conseil.host/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-     "ngrok-skip-browser-warning": "true" 
+    "ngrok-skip-browser-warning": "true"
   },
   withCredentials: true,
 });
 
 api.interceptors.request.use(config => {
-  const state = store.getState();
-  let token = state.user.token; // récupère le token depuis Redux
-  
-  // Fallback: si le token n'est pas dans Redux (store pas encore hydraté), 
-  // essayer de le récupérer depuis localStorage
-  if (!token) {
-    try {
-      const persistedState = localStorage.getItem('persist:root');
-      if (persistedState) {
-        const parsed = JSON.parse(persistedState);
-        const userState = parsed.user ? JSON.parse(parsed.user) : null;
-        token = userState?.token || null;
-      }
-    } catch (error) {
-      console.error('Error reading token from localStorage:', error);
-    }
-  }
-  
+  const token = useAuthStore.getState().token;
+
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;
 }, error => Promise.reject(error));
 
-// Intercepteur de réponse pour gérer les erreurs 401
+// Response interceptor for 401 errors and offline queue
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle 401 — automatic logout
     if (error.response?.status === 401) {
-      // Si on est déjà sur la page de login, ne pas faire de logout
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/register') {
-        // Déconnecter l'utilisateur et rediriger vers la page de login
-        store.dispatch(logout());
-        // Rediriger seulement si on n'est pas déjà sur la page de login
+        useAuthStore.getState().logout();
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
       }
+      return Promise.reject(error);
     }
+
+    // Handle network errors when offline — queue mutation requests
+    if (!error.response && !navigator.onLine) {
+      const method = error.config?.method?.toLowerCase();
+      if (method && ['post', 'put', 'patch', 'delete'].includes(method)) {
+        enqueue(error.config);
+        return Promise.resolve({
+          data: { queued: true, message: 'Request queued for offline sync' },
+          status: 202,
+          statusText: 'Queued',
+          headers: {},
+          config: error.config,
+        });
+      }
+    }
+
     return Promise.reject(error);
   }
 );
 
-export default api;                               
+// Flush offline queue when coming back online
+window.addEventListener('online', () => {
+  flush(api).then(({ success, failed }) => {
+    if (success > 0) {
+      console.log(`Synced ${success} queued request(s)${failed > 0 ? `, ${failed} failed` : ''}`);
+    }
+  });
+});
+
+export default api;

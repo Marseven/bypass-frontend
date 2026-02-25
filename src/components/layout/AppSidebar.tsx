@@ -34,8 +34,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../store/store';
+import { useAuthStore } from '@/store/useAuthStore';
 
 import api from '../../axios'
 
@@ -48,10 +47,11 @@ export function AppSidebar() {
   const [activeBypassCount, setActiveBypassCount] = useState(0)
   const [sensorCount, setSensorCount] = useState(0)
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.user);
+  const { user } = useAuthStore();
 
   const [isMediumScreen, setIsMediumScreen] = useState(false)
+  const [appName, setAppName] = useState('MineSafe OS')
+  const [appTagline, setAppTagline] = useState('Gestion des bypass')
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -61,6 +61,18 @@ export function AppSidebar() {
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
     return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  // Fetch public settings for app name/tagline
+  useEffect(() => {
+    api.get('/settings/public')
+      .then(response => {
+        if (response.data?.app_name) setAppName(response.data.app_name);
+        if (response.data?.app_tagline) setAppTagline(response.data.app_tagline);
+      })
+      .catch(() => {
+        // Keep defaults
+      });
   }, [])
 
   const handleLinkClick = () => {
@@ -73,7 +85,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     const fetchCounts = () => {
-      if (user && user.role !== 'user') {
+      if (user && user.role !== 'user' && user.role !== 'operateur') {
         api.get('/requests/pending')
           .then(response => {
             let count = 0;
@@ -112,21 +124,21 @@ export function AppSidebar() {
       url: "/",
       icon: LayoutDashboard,
       badge: null,
-      role: ['supervisor', 'administrator', 'director']
+      role: ['chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
     },
     {
       title: "Bypass Actifs",
       url: "/requests/mine",
       icon: Eye,
       badge: activeBypassCount > 0 ? activeBypassCount : null,
-      role: ['supervisor', 'administrator', 'user', 'director']
+      role: ['operateur', 'technicien', 'instrumentiste', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'user', 'supervisor', 'administrator', 'director']
     },
     {
       title: "Approbations",
       url: "/validation",
       icon: CheckSquare,
       badge: pendingCount > 0 ? pendingCount : null,
-      role: ['supervisor', 'administrator', 'director']
+      role: ['chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
     },
   ]
 
@@ -136,14 +148,14 @@ export function AppSidebar() {
       url: "/sensors",
       icon: Radio,
       badge: null,
-      role: ['administrator', 'supervisor', 'director']
+      role: ['resp_exploitation', 'directeur', 'administrateur', 'administrator', 'supervisor', 'director']
     },
     {
       title: "Zones du site",
       url: "/zones",
       icon: Building2,
       badge: null,
-      role: ['administrator', 'supervisor', 'director']
+      role: ['resp_exploitation', 'directeur', 'administrateur', 'administrator', 'supervisor', 'director']
     },
   ]
 
@@ -153,28 +165,28 @@ export function AppSidebar() {
       url: "/equipment",
       icon: Shield,
       badge: null,
-      role: ['administrator']
+      role: ['resp_exploitation', 'directeur', 'administrateur', 'administrator', 'director']
     },
     {
       title: "Utilisateurs",
       url: "/users",
       icon: Users,
       badge: null,
-      role: ['administrator']
+      role: ['administrateur', 'administrator']
     },
     {
       title: "Rôles et Permissions",
       url: "/roles-permissions",
       icon: Key,
       badge: null,
-      role: ['administrator']
+      role: ['administrateur', 'administrator']
     },
     {
       title: "Historique",
       url: "/history",
       icon: History,
       badge: null,
-      role: ['administrator']
+      role: ['administrateur', 'administrator']
     },
   ]
 
@@ -225,8 +237,8 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div>
-              <h2 className="font-bold text-sidebar-foreground text-sm">MineSafe OS</h2>
-              <p className="text-[11px] text-sidebar-foreground/50">Gestion des bypass</p>
+              <h2 className="font-bold text-sidebar-foreground text-sm">{appName}</h2>
+              <p className="text-[11px] text-sidebar-foreground/50">{appTagline}</p>
             </div>
           )}
         </div>
@@ -253,8 +265,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* ADMINISTRATION (admin only) */}
-        {user.role === 'administrator' && (
+        {/* ADMINISTRATION */}
+        {['administrateur', 'administrator', 'resp_exploitation', 'directeur', 'director'].includes(user.role) && (
           <SidebarGroup className="mt-6">
             <SidebarGroupLabel className="text-sidebar-foreground/40 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
               Administration

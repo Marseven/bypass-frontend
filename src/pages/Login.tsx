@@ -11,9 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogIn, Eye, EyeOff, Loader2 } from 'lucide-react';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../store/store';
-import { login, logout, setUsers } from '../store/users';
+import { useAuthStore } from '@/store/useAuthStore';
 import api from '../axios';
 
 const loginSchema = z.object({
@@ -29,8 +27,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
-  const { users, loading, error, user, token } = useSelector((state: RootState) => state.user);
+  const { user, token, login } = useAuthStore();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -61,7 +58,7 @@ export default function Login() {
       console.log('Success:', res.data.data);
     
       if (res.data.data.length !== 0) { 
-        dispatch(login({ user: res.data.data.user, token: res.data.data.token }));
+        login(res.data.data.user, res.data.data.token);
         toast({
           title: 'Connexion réussie',
           description: 'Vous êtes maintenant connecté.',

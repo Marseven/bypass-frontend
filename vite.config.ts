@@ -32,7 +32,37 @@ export default defineConfig(({ mode }) => ({
         name: 'ByPass',
         short_name: 'ByPass Application',
         icons: manifestIcons,
-      }
+      },
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: /\/api\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 3600, // 1 hour
+              },
+              networkTimeoutSeconds: 5,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\.(js|css|png|jpg|jpeg|svg|gif|woff2?)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-assets',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 86400, // 24 hours
+              },
+            },
+          },
+        ],
+      },
     }),
     mode === 'development' &&
     componentTagger(),
@@ -43,4 +73,3 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
-

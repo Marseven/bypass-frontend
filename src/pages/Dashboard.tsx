@@ -14,8 +14,10 @@ import {
   Download,
   Filter,
   MoreVertical,
-  Eye
+  Eye,
+  Timer
 } from "lucide-react"
+import { BypassExpirationBar } from "@/components/dashboard/BypassExpirationBar"
 import { useState, useEffect } from 'react';
 import api from '../axios'
 import { Link } from "react-router-dom"
@@ -146,10 +148,18 @@ export default function Dashboard() {
 
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'approved': case 'active': case 'actif':
-        return <Badge className="bg-primary text-primary-foreground text-xs font-bold">ACTIF</Badge>
+      case 'active': case 'actif':
+        return <Badge className="bg-green-600 text-white text-xs font-bold">ACTIF</Badge>
+      case 'approved':
+        return <Badge className="bg-blue-500 text-white text-xs font-bold">APPROUVÉ</Badge>
       case 'pending': case 'en attente':
         return <Badge className="bg-yellow-500 text-white text-xs font-bold">EN ATTENTE</Badge>
+      case 'draft':
+        return <Badge className="bg-gray-400 text-white text-xs font-bold">BROUILLON</Badge>
+      case 'closed':
+        return <Badge className="bg-gray-600 text-white text-xs font-bold">CLÔTURÉ</Badge>
+      case 'expired':
+        return <Badge className="bg-orange-500 text-white text-xs font-bold">EXPIRÉ</Badge>
       case 'rejected':
         return <Badge className="bg-red-600 text-white text-xs font-bold">REJETÉ</Badge>
       default:
@@ -196,6 +206,18 @@ export default function Dashboard() {
       icon: CheckCircle,
       iconBg: "bg-primary/10",
       iconColor: "text-primary"
+    },
+    {
+      title: "Expirant < 4h",
+      value: activeRequests.filter(r => {
+        if (!r.end_time) return false;
+        const remaining = new Date(r.end_time).getTime() - Date.now();
+        return remaining > 0 && remaining < 4 * 3600000;
+      }).length,
+      subtitle: "Attention requise",
+      icon: Timer,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600"
     }
   ]
 
@@ -218,7 +240,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map((stat) => (
           <Card key={stat.title} className="hover:shadow-md transition-shadow">
             <CardContent className="p-5">
@@ -300,6 +322,7 @@ export default function Dashboard() {
                     <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Motif du bypass</TableHead>
                     <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Niveau de risque</TableHead>
                     <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Statut</TableHead>
+                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Expiration</TableHead>
                     <TableHead className="text-xs font-semibold uppercase text-muted-foreground text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -327,6 +350,13 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell>{getRiskBadge(request.priority)}</TableCell>
                       <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell>
+                        {request.start_time && request.end_time ? (
+                          <BypassExpirationBar startTime={request.start_time} endTime={request.end_time} />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8" asChild>

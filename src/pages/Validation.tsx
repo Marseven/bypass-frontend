@@ -24,8 +24,7 @@ import { useLocation, Link } from "react-router-dom"
 import api from '../axios'
 import { useState, useEffect } from "react"
 import { toast } from 'sonner';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/store';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type BypassReason = 'preventive_maintenance' | 'corrective_maintenance' | 'calibration' | 'testing' | 'emergency_repair' | 'system_upgrade' | 'investigation' | 'other';
 
@@ -41,12 +40,12 @@ export default function Validation() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [riskFilter, setRiskFilter] = useState('all');
-  const { user } = useSelector((state: RootState) => state.user);
+  const { user } = useAuthStore();
 
   const requiresDualValidation = (priority: string) => priority === 'critical' || priority === 'emergency';
 
-  const canValidateLevel1 = () => user?.role === 'supervisor' || user?.role === 'administrator' || user?.role === 'director';
-  const canValidateLevel2 = () => user?.role === 'administrator' || user?.role === 'director';
+  const canValidateLevel1 = () => ['chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director'].includes(user?.role || '');
+  const canValidateLevel2 = () => ['resp_exploitation', 'directeur', 'administrateur', 'administrator', 'director'].includes(user?.role || '');
 
   const getValidationLevel = (request: any) => {
     if (!requiresDualValidation(request.priority)) {

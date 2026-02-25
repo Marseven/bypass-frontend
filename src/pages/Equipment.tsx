@@ -39,14 +39,17 @@ const Equipment = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState({ 
+  const [formData, setFormData] = useState({
     name: '',
     type: '' as EquipmentType,
     zone: '',
     fabricant: '',
     model: '',
     status: '' as EquipmentStatus,
-    criticite: '' as CriticalityLevel
+    criticite: '' as CriticalityLevel,
+    type_systeme: 'process',
+    niveau_sil: 'na',
+    fonction_securite: '',
   });
 
 
@@ -224,9 +227,12 @@ const Equipment = () => {
           fabricant: formData.fabricant.trim(),
           status: formData.status,
           criticite: formData.criticite,
-          ...(formData.model && { model: formData.model.trim() })
+          ...(formData.model && { model: formData.model.trim() }),
+          type_systeme: formData.type_systeme,
+          niveau_sil: formData.niveau_sil,
+          ...(formData.fonction_securite && { fonction_securite: formData.fonction_securite.trim() }),
         };
-        
+
         const data = await api({
           method: 'put',
           url: `/equipment/${editingEquipment.id}`,
@@ -264,9 +270,12 @@ const Equipment = () => {
           fabricant: formData.fabricant.trim(),
           status: formData.status,
           criticite: formData.criticite,
-          ...(formData.model && { model: formData.model.trim() })
+          ...(formData.model && { model: formData.model.trim() }),
+          type_systeme: formData.type_systeme,
+          niveau_sil: formData.niveau_sil,
+          ...(formData.fonction_securite && { fonction_securite: formData.fonction_securite.trim() }),
         };
-        
+
         const data = await api({
           method: 'post',
           url: '/equipment',
@@ -294,7 +303,8 @@ const Equipment = () => {
       setFormData({
         name: '', type: '' as EquipmentType, zone: '',
         fabricant: '', model: '', status: '' as EquipmentStatus,
-        criticite: '' as CriticalityLevel
+        criticite: '' as CriticalityLevel,
+        type_systeme: 'process', niveau_sil: 'na', fonction_securite: '',
       });
     } catch (error: any) {
       console.error('Error submitting equipment:', error);
@@ -318,7 +328,10 @@ const Equipment = () => {
       fabricant: eq.fabricant,
       model: eq.model,
       status: eq.status,
-      criticite: eq.criticite
+      criticite: eq.criticite,
+      type_systeme: (eq as any).type_systeme || 'process',
+      niveau_sil: (eq as any).niveau_sil || 'na',
+      fonction_securite: (eq as any).fonction_securite || '',
     });
     setIsDialogOpen(true);
   };
@@ -676,6 +689,55 @@ const Equipment = () => {
                     </div>
                   </div>
 
+                  {/* SIL Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <Label htmlFor="type_systeme" className="text-sm">Type système</Label>
+                      <Select
+                        value={formData.type_systeme}
+                        onValueChange={(value) => setFormData({...formData, type_systeme: value})}
+                      >
+                        <SelectTrigger className="text-sm sm:text-base">
+                          <SelectValue placeholder="Type système" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="process">Process</SelectItem>
+                          <SelectItem value="securite">Sécurité</SelectItem>
+                          <SelectItem value="feu_gaz">Feu & Gaz</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="niveau_sil" className="text-sm">Niveau SIL</Label>
+                      <Select
+                        value={formData.niveau_sil}
+                        onValueChange={(value) => setFormData({...formData, niveau_sil: value})}
+                      >
+                        <SelectTrigger className="text-sm sm:text-base">
+                          <SelectValue placeholder="Niveau SIL" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="na">N/A</SelectItem>
+                          <SelectItem value="sil1">SIL 1</SelectItem>
+                          <SelectItem value="sil2">SIL 2</SelectItem>
+                          <SelectItem value="sil3">SIL 3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {formData.niveau_sil !== 'na' && (
+                    <div>
+                      <Label htmlFor="fonction_securite" className="text-sm">Fonction sécurité</Label>
+                      <Input
+                        id="fonction_securite"
+                        value={formData.fonction_securite}
+                        onChange={(e) => setFormData({...formData, fonction_securite: e.target.value})}
+                        placeholder="Décrivez la fonction de sécurité"
+                        className="text-sm sm:text-base"
+                      />
+                    </div>
+                  )}
+
                   <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
                     <Button type="button" variant="outline" onClick={() => {
                       setIsDialogOpen(false);
@@ -685,7 +747,8 @@ const Equipment = () => {
                       setFormData({
                         name: '', type: '' as EquipmentType, zone: '',
                         fabricant: '', model: '', status: '' as EquipmentStatus,
-                        criticite: '' as CriticalityLevel
+                        criticite: '' as CriticalityLevel,
+                        type_systeme: 'process', niveau_sil: 'na', fonction_securite: '',
                       });
                     }} className="w-full sm:w-auto" size={isMobile ? "sm" : "default"}>
                       Annuler
