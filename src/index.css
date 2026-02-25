@@ -14,9 +14,9 @@ All colors MUST be HSL.
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
-    --primary: 221 83% 53%;
+    --primary: 223 32% 28%;
     --primary-foreground: 210 40% 98%;
-    --primary-glow: 221 83% 63%;
+    --primary-glow: 223 32% 38%;
     --secondary: 220 14% 96%;
     --secondary-foreground: 220 9% 46%;
     --muted: 220 14% 96%;
@@ -31,28 +31,28 @@ All colors MUST be HSL.
     --warning-foreground: 220 27% 98%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --ring: 223 32% 28%;
     --radius: 0.75rem;
     
     /* Luxury gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-luxury: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(226 71% 40%) 50%, hsl(230 62% 32%) 100%);
+    --gradient-luxury: linear-gradient(135deg, hsl(223 32% 28%) 0%, hsl(223 35% 22%) 50%, hsl(223 38% 18%) 100%);
     --gradient-glass: linear-gradient(135deg, hsla(0 0% 100% / 0.1), hsla(0 0% 100% / 0.05));
-    
+
     /* Shadows */
     --shadow-luxury: 0 25px 50px -12px hsl(var(--primary) / 0.25);
     --shadow-glass: 0 8px 32px 0 hsla(0 0% 0% / 0.1);
     --shadow-elegant: 0 20px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
-    
-    /* Sidebar specific */
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 220 27% 98%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 220 27% 98%;
-    --sidebar-accent: 220 14% 14%;
-    --sidebar-accent-foreground: 220 27% 98%;
-    --sidebar-border: 220 13% 12%;
-    --sidebar-ring: 221 83% 53%;
+
+    /* Sidebar specific - Light theme matching mockups */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 223 32% 28%;
+    --sidebar-primary: 223 32% 28%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 223 32% 28%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 223 32% 28%;
   }
 
   .dark {
@@ -62,9 +62,9 @@ All colors MUST be HSL.
     --card-foreground: 220 27% 98%;
     --popover: 220 13% 8%;
     --popover-foreground: 220 27% 98%;
-    --primary: 221 83% 53%;
+    --primary: 223 32% 38%;
     --primary-foreground: 220 27% 98%;
-    --primary-glow: 221 83% 63%;
+    --primary-glow: 223 32% 48%;
     --secondary: 220 13% 12%;
     --secondary-foreground: 220 27% 98%;
     --muted: 220 13% 12%;
@@ -79,22 +79,22 @@ All colors MUST be HSL.
     --warning-foreground: 224 71% 4%;
     --border: 220 13% 12%;
     --input: 220 13% 12%;
-    --ring: 221 83% 53%;
+    --ring: 223 32% 28%;
     
     /* Luxury gradients for dark */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-luxury: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(226 71% 40%) 50%, hsl(230 62% 32%) 100%);
+    --gradient-luxury: linear-gradient(135deg, hsl(223 32% 38%) 0%, hsl(223 35% 30%) 50%, hsl(223 38% 22%) 100%);
     --gradient-glass: linear-gradient(135deg, hsla(255 255% 255% / 0.1), hsla(255 255% 255% / 0.05));
-    
+
     /* Sidebar specific colors for dark mode */
-    --sidebar-background: 224 71% 4%;
+    --sidebar-background: 223 38% 12%;
     --sidebar-foreground: 220 27% 98%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary: 223 32% 38%;
     --sidebar-primary-foreground: 220 27% 98%;
-    --sidebar-accent: 220 13% 12%;
+    --sidebar-accent: 223 30% 18%;
     --sidebar-accent-foreground: 220 27% 98%;
-    --sidebar-border: 220 13% 12%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-border: 223 30% 15%;
+    --sidebar-ring: 223 32% 38%;
   }
 }
 
