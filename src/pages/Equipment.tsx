@@ -122,7 +122,7 @@ const Equipment = () => {
 
   const getStatusColor = (status: EquipmentStatus) => {
     switch (status) {
-      case 'operational': return 'bg-green-500';
+      case 'operational': return 'bg-primary';
       case 'maintenance': return 'bg-yellow-500';
       case 'down': return 'bg-red-500';
       case 'standby': return 'bg-gray-500';
@@ -132,7 +132,7 @@ const Equipment = () => {
 
   const getCriticalityColor = (criticite: CriticalityLevel) => {
     switch (criticite) {
-      case 'low': return 'text-green-600';
+      case 'low': return 'text-primary';
       case 'medium': return 'text-yellow-600';
       case 'high': return 'text-orange-600';
       case 'critical': return 'text-red-600';

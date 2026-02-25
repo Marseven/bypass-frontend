@@ -66,7 +66,7 @@ export const ApprovalForm = ({ request, level, onSubmit, onCancel }: ApprovalFor
   const getDecisionColor = (decision: string) => {
     switch (decision) {
       case 'approved':
-        return 'bg-green-100 text-green-800 hover:bg-green-200 border-green-300';
+        return 'bg-primary/10 text-primary hover:bg-primary/20 border-primary/30';
       case 'approved_with_conditions':
         return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-300';
       case 'rejected':
@@ -208,7 +208,7 @@ export const ApprovalForm = ({ request, level, onSubmit, onCancel }: ApprovalFor
                 <ul className="mt-2 text-sm space-y-1">
                   {request.riskAssessment.mitigationMeasures.map((measure, index) => (
                     <li key={index} className="flex items-center">
-                      <CheckCircle className="h-3 w-3 mr-2 text-green-600" />
+                      <CheckCircle className="h-3 w-3 mr-2 text-primary" />
                       {measure}
                     </li>
                   ))}

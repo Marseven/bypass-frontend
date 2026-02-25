@@ -36,8 +36,8 @@ const Index = () => {
       value: '15',
       change: '+25%',
       icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     },
     {
       title: 'Utilisateurs connectés',
@@ -86,7 +86,7 @@ const Index = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">{stat.title}</p>
                     <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs text-green-600">{stat.change}</p>
+                    <p className="text-xs text-primary">{stat.change}</p>
                   </div>
                   <div className={`p-3 rounded-full ${stat.bgColor}`}>
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -131,8 +131,8 @@ const Index = () => {
               </div>
               <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <FileText className="h-4 w-4 text-green-600" />
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <FileText className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-medium">Journal d'audit</h3>

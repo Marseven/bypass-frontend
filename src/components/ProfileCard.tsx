@@ -54,7 +54,7 @@ const getRoleBadgeColor = (role: string) => {
     case 'approver_level_1':
       return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
     case 'approver_level_2':
-      return 'bg-green-100 text-green-800 hover:bg-green-200';
+      return 'bg-primary/10 text-primary hover:bg-primary/20';
     case 'director':
       return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
     default:
@@ -110,7 +110,7 @@ export const ProfileCard = ({ user }: ProfileCardProps) => {
           </h4>
           <div className="space-y-2">
             {permissions.canSubmitRequest && (
-              <div className="flex items-center text-sm text-green-700 bg-green-50 px-2 py-1 rounded">
+              <div className="flex items-center text-sm text-primary bg-primary/5 px-2 py-1 rounded">
                 <CheckCircle className="h-3 w-3 mr-2" />
                 Soumettre des demandes
               </div>
@@ -122,7 +122,7 @@ export const ProfileCard = ({ user }: ProfileCardProps) => {
               </div>
             )}
             {permissions.canApproveLevel2 && (
-              <div className="flex items-center text-sm text-green-700 bg-green-50 px-2 py-1 rounded">
+              <div className="flex items-center text-sm text-primary bg-primary/5 px-2 py-1 rounded">
                 <CheckCircle className="h-3 w-3 mr-2" />
                 Approbation niveau 2
               </div>

@@ -97,8 +97,8 @@ export const FormsDemo = () => {
       title: 'Approuvées',
       value: '25',
       icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     }
   ];
 
@@ -291,7 +291,7 @@ export const FormsDemo = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-green-600">156</div>
+                    <div className="text-2xl font-bold text-primary">156</div>
                     <div className="text-sm text-muted-foreground">Demandes approuvées</div>
                   </CardContent>
                 </Card>

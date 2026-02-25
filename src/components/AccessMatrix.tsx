@@ -37,7 +37,7 @@ const permissions = [
 const roles = [
   { key: 'initiator', label: 'Initiateur', icon: Wrench, color: 'bg-blue-100 text-blue-800' },
   { key: 'approver_level_1', label: 'Approbateur Niv. 1', icon: Shield, color: 'bg-orange-100 text-orange-800' },
-  { key: 'approver_level_2', label: 'Approbateur Niv. 2', icon: Users, color: 'bg-green-100 text-green-800' },
+  { key: 'approver_level_2', label: 'Approbateur Niv. 2', icon: Users, color: 'bg-primary/10 text-primary' },
   { key: 'director', label: 'Directeur', icon: Crown, color: 'bg-purple-100 text-purple-800' },
 ];
 
@@ -81,7 +81,7 @@ export const AccessMatrix = () => {
                     return (
                       <td key={`${role.key}-${permission.key}`} className="p-3 border-b text-center">
                         {hasPermission ? (
-                          <Check className="h-4 w-4 text-green-600 mx-auto" />
+                          <Check className="h-4 w-4 text-primary mx-auto" />
                         ) : (
                           <X className="h-4 w-4 text-red-400 mx-auto" />
                         )}
