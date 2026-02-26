@@ -56,57 +56,57 @@ export default function Login() {
       });
 
       console.log('Success:', res.data.data);
-    
-      if (res.data.data.length !== 0) { 
+
+      if (res.data.data.length !== 0) {
         login(res.data.data.user, res.data.data.token);
         toast({
-          title: 'Connexion réussie',
-          description: 'Vous êtes maintenant connecté.',
+          title: 'Connexion reussie',
+          description: 'Vous etes maintenant connecte.',
         });
-        
-        // Récupérer les notifications après la connexion
+
+        // Recuperer les notifications apres la connexion
         try {
           const notificationsResponse = await api.get('/notifications');
           const allNotifications = notificationsResponse.data || [];
-          
+
           // Filtrer les nouvelles notifications (non lues)
           const newNotifications = allNotifications.filter((notif: any) => !notif.read_at);
-          
+
           // Fonction pour obtenir le label de maintenance
           const getMaintenanceLabel = (key: string): string => {
             const reasonLabels: Record<string, string> = {
-              preventive_maintenance: 'Maintenance préventive',
+              preventive_maintenance: 'Maintenance preventive',
               corrective_maintenance: 'Maintenance corrective',
-              calibration: 'Étalonnage',
+              calibration: 'Etalonnage',
               testing: 'Tests',
-              emergency_repair: 'Réparation d\'urgence',
-              system_upgrade: 'Mise à niveau système',
+              emergency_repair: 'Reparation d\'urgence',
+              system_upgrade: 'Mise a niveau systeme',
               investigation: 'Investigation',
               other: 'Autre'
             };
             return reasonLabels[key] || key;
           };
-          
-          // Afficher chaque nouvelle notification en pop-up avec un délai entre chaque
+
+          // Afficher chaque nouvelle notification en pop-up avec un delai entre chaque
           newNotifications.forEach((notification: any, index: number) => {
             setTimeout(() => {
-              const title = notification.data?.title 
-                ? getMaintenanceLabel(notification.data.title) 
+              const title = notification.data?.title
+                ? getMaintenanceLabel(notification.data.title)
                 : 'Nouvelle notification';
               const description = notification.data?.description || 'Vous avez une nouvelle notification';
-              
+
               toast({
                 title: title,
                 description: description,
                 duration: 5000, // 5 secondes
               });
-            }, index * 600); // Délai de 600ms entre chaque notification pour éviter qu'elles se chevauchent
+            }, index * 600); // Delai de 600ms entre chaque notification pour eviter qu'elles se chevauchent
           });
         } catch (error) {
           console.error('Error fetching notifications:', error);
-          // Ne pas bloquer la connexion si la récupération des notifications échoue
+          // Ne pas bloquer la connexion si la recuperation des notifications echoue
         }
-        
+
         if(res.data.data.user.role === 'user'){
           navigate('/requests/new', { replace: true });
         } else {
@@ -115,7 +115,7 @@ export default function Login() {
       } else {
         console.log('Login failed: ', res.data);
         toast({
-          title: 'Échec de la connexion',
+          title: 'Echec de la connexion',
           description: 'Email ou mot de passe incorrect.',
           variant: 'destructive',
         });
@@ -133,7 +133,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-6 relative">
+    <div className="min-h-screen flex items-center justify-center bg-background bg-grid-pattern p-6 relative">
+      {/* Ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+
       {/* Loader Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -142,10 +145,10 @@ export default function Login() {
             <div className="relative flex items-center justify-center w-32 h-32">
               {/* Cercle de fond statique */}
               <div className="absolute inset-0 border-4 border-primary/10 rounded-full"></div>
-              {/* Cercle animé qui tourne */}
+              {/* Cercle anime qui tourne */}
               <div className="absolute inset-0 border-4 border-transparent border-t-primary border-r-primary rounded-full animate-spin" style={{ animationDuration: '1s' }}></div>
               {/* Logo au centre */}
-              <div className="relative z-10 w-20 h-20 flex items-center justify-center bg-white rounded-xl p-3 shadow-lg">
+              <div className="relative z-10 w-20 h-20 flex items-center justify-center bg-card rounded-xl p-3 shadow-lg">
                 <img src="/logo.png" alt="Logo ByPass Guard" className="w-full h-full object-contain" />
               </div>
             </div>
@@ -156,18 +159,17 @@ export default function Login() {
           </div>
         </div>
       )}
-      
-      <Card className={`w-full max-w-md shadow-xl border-primary/10 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+
+      <Card variant="glass" className={`w-full max-w-md border-border/30 relative ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center w-16 h-18 mx-auto mb-4">
-            {/* <LogIn className="w-6 h-6 text-primary" /> */}
             <img src="/logo.png" alt="Logo ByPass Guard" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Connexion
+          <CardTitle className="text-2xl font-display font-bold text-gradient-primary">
+            MineSafe OS
           </CardTitle>
           <CardDescription>
-            Connectez-vous à votre compte pour accéder au système
+            Connectez-vous pour acceder au systeme de gestion des bypass
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -191,7 +193,7 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -229,7 +231,7 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full font-display tracking-wide"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -246,26 +248,6 @@ export default function Login() {
               </Button>
             </form>
           </Form>
-
-          {/* <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>
-              Pas encore de compte ?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:underline"
-              >
-                Créer un compte
-              </Link>
-            </p>
-          </div> */}
-
-          {/* <div className="mt-4 p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground">
-            <p className="font-medium mb-1">Comptes de test :</p>
-            <p>• admin@test.com (Directeur)</p>
-            <p>• approver1@test.com (Approbateur Niveau 1)</p>
-            <p>• initiator@test.com (Initiateur)</p>
-            <p className="mt-1 italic">Mot de passe : n'importe lequel</p>
-          </div> */}
         </CardContent>
       </Card>
     </div>

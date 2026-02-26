@@ -76,7 +76,7 @@ export default function Dashboard() {
         if (filter === 'day') {
           formattedData = response.data.slice(-30).map((item: any) => ({
             date: new Date(item.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-            totales: item.total, validées: item.approved, rejetées: item.rejected
+            totales: item.total, validees: item.approved, rejetees: item.rejected
           }));
         } else if (filter === 'month') {
           const monthly: Record<string, any> = {};
@@ -84,10 +84,10 @@ export default function Dashboard() {
             const d = new Date(item.date);
             const key = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
             const sort = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            if (!monthly[key]) monthly[key] = { totales: 0, validées: 0, rejetées: 0, sort };
+            if (!monthly[key]) monthly[key] = { totales: 0, validees: 0, rejetees: 0, sort };
             monthly[key].totales += item.total;
-            monthly[key].validées += item.approved;
-            monthly[key].rejetées += item.rejected;
+            monthly[key].validees += item.approved;
+            monthly[key].rejetees += item.rejected;
           });
           formattedData = Object.entries(monthly)
             .sort((a, b) => a[1].sort.localeCompare(b[1].sort))
@@ -97,10 +97,10 @@ export default function Dashboard() {
           const yearly: Record<string, any> = {};
           response.data.forEach((item: any) => {
             const y = new Date(item.date).getFullYear().toString();
-            if (!yearly[y]) yearly[y] = { totales: 0, validées: 0, rejetées: 0 };
+            if (!yearly[y]) yearly[y] = { totales: 0, validees: 0, rejetees: 0 };
             yearly[y].totales += item.total;
-            yearly[y].validées += item.approved;
-            yearly[y].rejetées += item.rejected;
+            yearly[y].validees += item.approved;
+            yearly[y].rejetees += item.rejected;
           });
           formattedData = Object.entries(yearly).sort((a, b) => a[0].localeCompare(b[0])).map(([date, data]) => ({ date, ...data }));
         }
@@ -148,17 +148,17 @@ export default function Dashboard() {
       case 'active': case 'actif':
         return <Badge className="bg-green-600 text-white text-xs font-bold">ACTIF</Badge>
       case 'approved':
-        return <Badge className="bg-blue-500 text-white text-xs font-bold">APPROUVÉ</Badge>
+        return <Badge className="bg-blue-500 text-white text-xs font-bold">APPROUVE</Badge>
       case 'pending': case 'en attente':
         return <Badge className="bg-yellow-500 text-white text-xs font-bold">EN ATTENTE</Badge>
       case 'draft':
         return <Badge className="bg-gray-400 text-white text-xs font-bold">BROUILLON</Badge>
       case 'closed':
-        return <Badge className="bg-gray-600 text-white text-xs font-bold">CLÔTURÉ</Badge>
+        return <Badge className="bg-gray-600 text-white text-xs font-bold">CLOTURE</Badge>
       case 'expired':
-        return <Badge className="bg-orange-500 text-white text-xs font-bold">EXPIRÉ</Badge>
+        return <Badge className="bg-orange-500 text-white text-xs font-bold">EXPIRE</Badge>
       case 'rejected':
-        return <Badge className="bg-red-600 text-white text-xs font-bold">REJETÉ</Badge>
+        return <Badge className="bg-red-600 text-white text-xs font-bold">REJETE</Badge>
       default:
         return <Badge variant="outline" className="text-xs">{status}</Badge>
     }
@@ -176,21 +176,25 @@ export default function Dashboard() {
       title: "Bypass Actifs",
       value: summary.active_requests,
       subtitle: `${summary.active_requests > 0 ? 'Interventions en cours' : 'Aucune intervention'}`,
+      variant: "accent" as const,
     },
     {
       title: "Risque Critique (SIL 3)",
       value: activeRequests.filter(r => r.priority?.toLowerCase() === 'critical').length,
-      subtitle: "Surveillance renforcée",
+      subtitle: "Surveillance renforcee",
+      variant: "accent-destructive" as const,
     },
     {
       title: "En attente d'approbation",
       value: summary.pending_validation,
       subtitle: "Validation requise",
+      variant: "accent-warning" as const,
     },
     {
-      title: "Approuvés aujourd'hui",
+      title: "Approuves aujourd'hui",
       value: summary.approved_today,
-      subtitle: "Validations effectuées",
+      subtitle: "Validations effectuees",
+      variant: "accent-success" as const,
     },
     {
       title: "Expirant < 4h",
@@ -200,6 +204,7 @@ export default function Dashboard() {
         return remaining > 0 && remaining < 4 * 3600000;
       }).length,
       subtitle: "Attention requise",
+      variant: "accent-warning" as const,
     }
   ]
 
@@ -208,9 +213,9 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Gestion des Bypass</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Gestion des Bypass</h1>
           <p className="text-sm text-muted-foreground">
-            Aperçu en temps réel des inhibitions de capteurs sur le site.
+            Apercu en temps reel des inhibitions de capteurs sur le site.
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
@@ -224,11 +229,11 @@ export default function Dashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow">
+          <Card key={stat.title} variant={stat.variant}>
             <CardContent className="p-5">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{stat.title}</p>
-                <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">{stat.title}</p>
+                <p className="text-3xl font-display font-bold tracking-tight">{stat.value}</p>
                 <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
               </div>
             </CardContent>
@@ -240,7 +245,7 @@ export default function Dashboard() {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-lg">Interventions en cours</CardTitle>
+            <CardTitle className="text-lg font-display">Interventions en cours</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Select value={zoneFilter} onValueChange={setZoneFilter}>
                 <SelectTrigger className="w-[160px] h-9 text-sm">
@@ -269,7 +274,7 @@ export default function Dashboard() {
               <Button variant="outline" size="sm" className="h-9 text-sm"
                 onClick={() => exportToCSV(filteredActiveRequests.map(r => ({
                   Code: r.request_code, Equipement: r.equipment?.name, Capteur: r.sensor?.name,
-                  Priorité: getLabel(priorityLabels, r.priority), Statut: getLabel(statusLabels, r.status)
+                  Priorite: getLabel(priorityLabels, r.priority), Statut: getLabel(statusLabels, r.status)
                 })), 'interventions-actives')}
               >
                 <Download className="w-3.5 h-3.5 mr-1.5" />
@@ -295,17 +300,17 @@ export default function Dashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Tag Capteur & Zone</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Motif du bypass</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Niveau de risque</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Statut</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Expiration</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground text-right">Actions</TableHead>
+                    <TableHead>Tag Capteur & Zone</TableHead>
+                    <TableHead>Motif du bypass</TableHead>
+                    <TableHead>Niveau de risque</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Expiration</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredActiveRequests.map((request) => (
-                    <TableRow key={request.id} className="hover:bg-muted/50">
+                    <TableRow key={request.id}>
                       <TableCell>
                         <div>
                           <Link to={`/requests`} className="font-mono font-semibold text-primary hover:underline">
@@ -362,21 +367,21 @@ export default function Dashboard() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2 text-base">
+                <CardTitle className="flex items-center gap-2 text-base font-display">
                   <BarChart3 className="w-4 h-4" />
                   Statistiques des demandes
                 </CardTitle>
                 <CardDescription className="text-xs">
                   {chartFilter === 'day' && '30 derniers jours'}
                   {chartFilter === 'month' && 'Par mois'}
-                  {chartFilter === 'year' && 'Par année'}
+                  {chartFilter === 'year' && 'Par annee'}
                 </CardDescription>
               </div>
               <div className="flex gap-1">
                 {(['day', 'month', 'year'] as const).map(f => (
                   <Button key={f} variant={chartFilter === f ? 'default' : 'outline'} size="sm"
                     onClick={() => handleFilterChange(f)} className="text-xs h-7 px-2">
-                    {f === 'day' ? 'Jour' : f === 'month' ? 'Mois' : 'Année'}
+                    {f === 'day' ? 'Jour' : f === 'month' ? 'Mois' : 'Annee'}
                   </Button>
                 ))}
               </div>
@@ -386,13 +391,13 @@ export default function Dashboard() {
             {isLoadingChart ? (
               <Skeleton className="h-[250px] w-full" />
             ) : chartData.length === 0 ? (
-              <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">Aucune donnée</div>
+              <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">Aucune donnee</div>
             ) : (
               <ChartContainer
                 config={{
-                  totales: { label: "Totales", color: "hsl(223, 32%, 28%)" },
-                  validées: { label: "Validées", color: "hsl(142, 76%, 36%)" },
-                  rejetées: { label: "Rejetées", color: "hsl(0, 84%, 60%)" },
+                  totales: { label: "Totales", color: "hsl(185, 70%, 42%)" },
+                  validees: { label: "Validees", color: "hsl(155, 65%, 38%)" },
+                  rejetees: { label: "Rejetees", color: "hsl(0, 75%, 55%)" },
                 }}
                 className="h-[250px] w-full"
               >
@@ -402,9 +407,9 @@ export default function Dashboard() {
                   <YAxis className="text-xs" tick={{ fill: 'currentColor' }} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Line type="monotone" dataKey="totales" stroke="hsl(223, 32%, 28%)" strokeWidth={2} dot={{ r: 2 }} />
-                  <Line type="monotone" dataKey="validées" stroke="hsl(142, 76%, 36%)" strokeWidth={2} dot={{ r: 2 }} />
-                  <Line type="monotone" dataKey="rejetées" stroke="hsl(0, 84%, 60%)" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line type="monotone" dataKey="totales" stroke="hsl(185, 70%, 42%)" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line type="monotone" dataKey="validees" stroke="hsl(155, 65%, 38%)" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line type="monotone" dataKey="rejetees" stroke="hsl(0, 75%, 55%)" strokeWidth={2} dot={{ r: 2 }} />
                 </LineChart>
               </ChartContainer>
             )}
@@ -414,9 +419,9 @@ export default function Dashboard() {
         {/* Top Sensors Chart */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-base font-display">
               <BarChart3 className="w-4 h-4" />
-              Capteurs les plus demandés
+              Capteurs les plus demandes
             </CardTitle>
             <CardDescription className="text-xs">Top 10 par nombre de demandes</CardDescription>
           </CardHeader>
@@ -424,10 +429,10 @@ export default function Dashboard() {
             {isLoadingSensors ? (
               <Skeleton className="h-[250px] w-full" />
             ) : sensorsData.length === 0 ? (
-              <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">Aucune donnée</div>
+              <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">Aucune donnee</div>
             ) : (
               <ChartContainer
-                config={{ demandes: { label: "Demandes", color: "hsl(223, 32%, 28%)" } }}
+                config={{ demandes: { label: "Demandes", color: "hsl(185, 70%, 42%)" } }}
                 className="h-[250px] w-full"
               >
                 <BarChart data={sensorsData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
@@ -435,7 +440,7 @@ export default function Dashboard() {
                   <XAxis dataKey="name" className="text-xs" tick={{ fill: 'currentColor' }} angle={-45} textAnchor="end" height={80} />
                   <YAxis className="text-xs" tick={{ fill: 'currentColor' }} />
                   <ChartTooltip content={<ChartTooltipContent />} cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }} />
-                  <Bar dataKey="demandes" fill="hsl(223, 32%, 28%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="demandes" fill="hsl(185, 70%, 42%)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             )}
@@ -444,42 +449,42 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom: System Status */}
-      <Card>
+      <Card variant="accent">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-base font-display">
             <Shield className="w-4 h-4" />
-            État du système
+            Etat du systeme
           </CardTitle>
-          <CardDescription className="text-xs">Surveillance en temps réel</CardDescription>
+          <CardDescription className="text-xs">Surveillance en temps reel</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Équipements surveillés</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Equipements surveilles</p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-lg font-semibold">{systemStatus.monitored_equipment}</span>
+                <span className="text-lg font-display font-semibold">{systemStatus.monitored_equipment}</span>
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Capteurs en ligne</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Capteurs en ligne</p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-lg font-semibold">{systemStatus.online_sensors}</span>
+                <span className="text-lg font-display font-semibold">{systemStatus.online_sensors}</span>
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Alertes actives</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Alertes actives</p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-warning" />
-                <span className="text-lg font-semibold">{systemStatus.active_alerts}</span>
+                <span className="text-lg font-display font-semibold">{systemStatus.active_alerts}</span>
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Performance système</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Performance systeme</p>
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-success" />
-                <span className="text-lg font-semibold">{systemStatus.system_performance}%</span>
+                <span className="text-lg font-display font-semibold">{systemStatus.system_performance}%</span>
               </div>
             </div>
           </div>

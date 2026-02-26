@@ -40,13 +40,13 @@ export function TopNavbar() {
         logout();
 
         toast({
-          title: 'Déconnexion réussie',
+          title: 'Deconnexion reussie',
           description: 'Impatient de vous revoir.',
         });
         navigate('/login');
       } else {
         toast({
-          title: 'Échec de la déconnexion',
+          title: 'Echec de la deconnexion',
           variant: 'destructive',
         });
       }
@@ -66,7 +66,7 @@ export function TopNavbar() {
   return (
     <>
       <OfflineIndicator />
-      <header className="h-16 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 sticky top-0 z-50">
+      <header className="h-14 glass-dark border-b border-border/30 shadow-[0_1px_0_hsla(185,70%,42%,0.05)] sticky top-0 z-50">
         <div className="flex items-center justify-between h-full px-6 gap-4">
           {/* Left section */}
           <div className="flex items-center gap-4">
@@ -77,7 +77,7 @@ export function TopNavbar() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher..."
-                className="pl-10 w-full bg-muted/50 border-0 focus:bg-background transition-colors"
+                className="pl-10 w-full bg-muted/30 border-border/30 font-mono text-sm"
               />
             </div>
           </div>
@@ -97,8 +97,8 @@ export function TopNavbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 h-9 px-2 sm:px-3">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0">
-                    <User className="w-4 h-4 text-primary-foreground" />
+                  <div className="w-7 h-7 rounded-md bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left hidden sm:block">
                     <p className="text-sm font-medium truncate max-w-[120px]">{user?.full_name}</p>
@@ -119,13 +119,13 @@ export function TopNavbar() {
                 <DropdownMenuItem asChild>
                   <Link to="/settings">
                     <Settings className="w-4 h-4 mr-2" />
-                    Paramètres
+                    Parametres
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
+                  Deconnexion
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

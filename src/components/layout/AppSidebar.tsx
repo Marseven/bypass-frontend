@@ -161,7 +161,7 @@ export function AppSidebar() {
 
   const adminItems = [
     {
-      title: "Équipements",
+      title: "Equipements",
       url: "/equipment",
       icon: Shield,
       badge: null,
@@ -175,7 +175,7 @@ export function AppSidebar() {
       role: ['administrateur', 'administrator']
     },
     {
-      title: "Rôles et Permissions",
+      title: "Roles et Permissions",
       url: "/roles-permissions",
       icon: Key,
       badge: null,
@@ -193,8 +193,8 @@ export function AppSidebar() {
   const getNavClass = (active: boolean) =>
     `w-full justify-start transition-all duration-200 rounded-lg ${
       active
-        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-medium"
-        : "hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground"
+        ? "bg-sidebar-accent border-l-2 border-primary text-primary font-medium"
+        : "hover:bg-sidebar-accent/50 text-sidebar-foreground/60 border-l-2 border-transparent"
     }`
 
   const renderMenuSection = (items: typeof supervisionItems) => (
@@ -215,7 +215,7 @@ export function AppSidebar() {
                   <>
                     <span className="text-sm">{item.title}</span>
                     {item.badge && (
-                      <Badge className="ml-auto h-5 min-w-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-semibold px-1.5">
+                      <Badge className="ml-auto h-5 min-w-5 flex items-center justify-center bg-primary/15 text-primary border border-primary/30 font-mono rounded-md text-[10px] font-semibold px-1.5">
                         {item.badge}
                       </Badge>
                     )}
@@ -237,7 +237,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div>
-              <h2 className="font-bold text-sidebar-foreground text-sm">{appName}</h2>
+              <h2 className="font-display font-bold text-sidebar-foreground text-sm">{appName}</h2>
               <p className="text-[11px] text-sidebar-foreground/50">{appTagline}</p>
             </div>
           )}
@@ -247,7 +247,7 @@ export function AppSidebar() {
       <SidebarContent className="px-3 py-4">
         {/* SUPERVISION */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-sidebar-foreground/30 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
             Supervision
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -257,7 +257,7 @@ export function AppSidebar() {
 
         {/* INVENTAIRE */}
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-sidebar-foreground/40 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-sidebar-foreground/30 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
             Inventaire
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -268,7 +268,7 @@ export function AppSidebar() {
         {/* ADMINISTRATION */}
         {['administrateur', 'administrator', 'resp_exploitation', 'directeur', 'director'].includes(user.role) && (
           <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className="text-sidebar-foreground/40 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
+            <SidebarGroupLabel className="text-sidebar-foreground/30 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
               Administration
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -288,7 +288,7 @@ export function AppSidebar() {
                 onClick={handleLinkClick}
               >
                 <Settings className="w-4 h-4" />
-                {!collapsed && <span className="text-sm">Paramètres</span>}
+                {!collapsed && <span className="text-sm">Parametres</span>}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
