@@ -6,13 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { BypassRequestForm } from './forms/BypassRequestForm';
 import { ApprovalForm } from './forms/ApprovalForm';
 import { BypassRequest } from '@/types/request';
-import { 
-  FileText, 
-  CheckCircle, 
-  Clock, 
-  AlertTriangle,
-  Shield
-} from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 const mockRequest: Partial<BypassRequest> = {
   id: 'req-001',
@@ -72,34 +66,10 @@ export const FormsDemo = () => {
   };
 
   const requestStats = [
-    {
-      title: 'Nouvelles demandes',
-      value: '12',
-      icon: FileText,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      title: 'En validation Niv.1',
-      value: '8',
-      icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
-    },
-    {
-      title: 'En validation Niv.2',
-      value: '3',
-      icon: AlertTriangle,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100'
-    },
-    {
-      title: 'Approuvées',
-      value: '25',
-      icon: CheckCircle,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10'
-    }
+    { title: 'Nouvelles demandes', value: '12' },
+    { title: 'En validation Niv.1', value: '8' },
+    { title: 'En validation Niv.2', value: '3' },
+    { title: 'Approuvées', value: '25' },
   ];
 
   if (showRequestForm) {
@@ -146,14 +116,9 @@ export const FormsDemo = () => {
         {requestStats.map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{stat.title}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
               </div>
             </CardContent>
           </Card>

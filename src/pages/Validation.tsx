@@ -11,13 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import {
   CheckCircle,
   XCircle,
-  Clock,
-  AlertTriangle,
   User,
-  Calendar,
-  Settings,
   FileText,
-  CheckSquare
 } from "lucide-react"
 
 import { useLocation, Link } from "react-router-dom"
@@ -159,10 +154,10 @@ export default function Validation() {
   const criticalCount = requestApprobation.filter(r => r.priority?.toLowerCase() === 'critical').length;
 
   const stats = [
-    { title: "Demandes en attente", value: requestApprobation.length, subtitle: `${requestApprobation.length > 0 ? 'Nouvelles depuis 1h' : 'Aucune demande'}`, icon: FileText, iconBg: "bg-primary/10", iconColor: "text-primary" },
-    { title: "Risque Critique (SIL 3)", value: criticalCount, subtitle: "Validation Ing. requise", icon: AlertTriangle, iconBg: "bg-red-100", iconColor: "text-red-600" },
-    { title: "Délai dépassé (> 2h)", value: 0, subtitle: "En attente d'action rapide", icon: Clock, iconBg: "bg-orange-100", iconColor: "text-orange-600" },
-    { title: "Approuvés aujourd'hui", value: '-', subtitle: "Sur les demandes traitées", icon: CheckCircle, iconBg: "bg-primary/10", iconColor: "text-primary" },
+    { title: "Demandes en attente", value: requestApprobation.length, subtitle: `${requestApprobation.length > 0 ? 'Nouvelles depuis 1h' : 'Aucune demande'}` },
+    { title: "Risque Critique (SIL 3)", value: criticalCount, subtitle: "Validation Ing. requise" },
+    { title: "Délai dépassé (> 2h)", value: 0, subtitle: "En attente d'action rapide" },
+    { title: "Approuvés aujourd'hui", value: '-', subtitle: "Sur les demandes traitées" },
   ]
 
   const getTimeSince = (dateStr: string) => {
@@ -197,15 +192,10 @@ export default function Validation() {
         {stats.map((stat) => (
           <Card key={stat.title} className="hover:shadow-md transition-shadow">
             <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${stat.iconBg}`}>
-                  <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
-                </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{stat.title}</p>
+                <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
               </div>
             </CardContent>
           </Card>

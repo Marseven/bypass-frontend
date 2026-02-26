@@ -3,19 +3,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   AlertTriangle,
-  CheckCircle,
-  Clock,
   FileText,
   Activity,
   TrendingUp,
   Shield,
-  ArrowRight,
   BarChart3,
   Download,
   Filter,
   MoreVertical,
-  Eye,
-  Timer
+  Eye
 } from "lucide-react"
 import { BypassExpirationBar } from "@/components/dashboard/BypassExpirationBar"
 import { useState, useEffect } from 'react';
@@ -180,33 +176,21 @@ export default function Dashboard() {
       title: "Bypass Actifs",
       value: summary.active_requests,
       subtitle: `${summary.active_requests > 0 ? 'Interventions en cours' : 'Aucune intervention'}`,
-      icon: Activity,
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary"
     },
     {
       title: "Risque Critique (SIL 3)",
       value: activeRequests.filter(r => r.priority?.toLowerCase() === 'critical').length,
       subtitle: "Surveillance renforcée",
-      icon: AlertTriangle,
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600"
     },
     {
       title: "En attente d'approbation",
       value: summary.pending_validation,
       subtitle: "Validation requise",
-      icon: Clock,
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-600"
     },
     {
       title: "Approuvés aujourd'hui",
       value: summary.approved_today,
       subtitle: "Validations effectuées",
-      icon: CheckCircle,
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary"
     },
     {
       title: "Expirant < 4h",
@@ -216,9 +200,6 @@ export default function Dashboard() {
         return remaining > 0 && remaining < 4 * 3600000;
       }).length,
       subtitle: "Attention requise",
-      icon: Timer,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600"
     }
   ]
 
@@ -245,15 +226,10 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <Card key={stat.title} className="hover:shadow-md transition-shadow">
             <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${stat.iconBg}`}>
-                  <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
-                </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{stat.title}</p>
+                <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
               </div>
             </CardContent>
           </Card>

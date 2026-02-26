@@ -2,12 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UserSelectionDemo } from '@/components/UserSelectionDemo';
 import { AccessMatrix } from '@/components/AccessMatrix';
-import { 
-  Shield, 
-  Users, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock,
+import {
+  Shield,
+  CheckCircle,
   FileText,
   Settings
 } from 'lucide-react';
@@ -19,33 +16,21 @@ const Index = () => {
       title: 'Demandes actives',
       value: '24',
       change: '+12%',
-      icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
     },
     {
       title: 'En attente validation',
       value: '8',
       change: '+3',
-      icon: AlertTriangle,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100'
     },
     {
       title: 'Approuvées aujourd\'hui',
       value: '15',
       change: '+25%',
-      icon: CheckCircle,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10'
     },
     {
       title: 'Utilisateurs connectés',
       value: '42',
       change: '+5',
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
     }
   ];
 
@@ -82,15 +67,10 @@ const Index = () => {
           {stats.map((stat, index) => (
             <Card key={index} className="border-l-4 border-l-primary">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs text-primary">{stat.change}</p>
-                  </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{stat.title}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-xs text-primary">{stat.change}</p>
                 </div>
               </CardContent>
             </Card>

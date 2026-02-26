@@ -186,10 +186,10 @@ const Sensors: React.FC = () => {
   const faultyCount = sensors.filter(s => ['inactive', 'faulty', 'maintenance'].includes(s.status)).length;
 
   const statCards = [
-    { label: 'Total Capteurs', value: sensors.length, color: 'bg-primary' },
-    { label: 'Sains / Actifs', value: activeCount, color: 'bg-primary' },
-    { label: 'En Bypass', value: bypassedCount, color: 'bg-orange-500' },
-    { label: 'En Défaut / Déconnectés', value: faultyCount, color: 'bg-red-500' },
+    { label: 'Total Capteurs', value: sensors.length },
+    { label: 'Sains / Actifs', value: activeCount },
+    { label: 'En Bypass', value: bypassedCount },
+    { label: 'En Défaut / Déconnectés', value: faultyCount },
   ];
 
   return (
@@ -218,11 +218,10 @@ const Sensors: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <Card key={stat.label} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-lg ${stat.color} opacity-80`} />
-              <div>
-                <p className="text-2xl font-bold">{isLoading ? '...' : stat.value.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <CardContent className="p-5">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-3xl font-bold tracking-tight">{isLoading ? '...' : stat.value.toLocaleString()}</p>
               </div>
             </CardContent>
           </Card>
