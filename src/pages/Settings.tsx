@@ -14,7 +14,7 @@ const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [generalSettings, setGeneralSettings] = useState({
-    app_name: 'MineSafe OS',
+    app_name: 'ByPass',
     app_tagline: 'Gestion des bypass',
     max_pending_requests_per_user: '5',
     auto_escalation_hours: '24',

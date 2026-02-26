@@ -50,7 +50,7 @@ export function AppSidebar() {
   const { user } = useAuthStore();
 
   const [isMediumScreen, setIsMediumScreen] = useState(false)
-  const [appName, setAppName] = useState('MineSafe OS')
+  const [appName, setAppName] = useState('ByPass')
   const [appTagline, setAppTagline] = useState('Gestion des bypass')
 
   useEffect(() => {

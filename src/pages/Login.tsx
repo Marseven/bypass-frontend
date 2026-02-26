@@ -28,7 +28,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { user, token, login } = useAuthStore();
-  const [appName, setAppName] = useState('MineSafe OS');
+  const [appName, setAppName] = useState('ByPass');
   const [appTagline, setAppTagline] = useState('Connectez-vous pour acceder au systeme de gestion des bypass');
 
   useEffect(() => {
