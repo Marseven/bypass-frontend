@@ -15,7 +15,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import api from '../axios';
 
 const loginSchema = z.object({
-  username: z.string('Username invalide'),
+  username: z.string({required_error: "L'identifiant est requis"}).min(1, "L'identifiant est requis"),
   password: z.string().min(1, 'Le mot de passe est requis'),
 });
 

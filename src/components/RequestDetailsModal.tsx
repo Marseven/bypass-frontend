@@ -28,6 +28,7 @@ import api from '../axios'
 import { set, string } from "zod"
 import { toast } from 'sonner';
 import { useNavigate } from "react-router-dom"
+import { getLabel, statusLabels, priorityLabels } from '@/utils/statusLabels'
 
 
 
@@ -181,11 +182,11 @@ export function RequestDetailsModal({ request }: RequestDetailsModalProps) {
                   <div className="flex items-center gap-2">
                     {getStatusIcon(request.status)}
                     <Badge className={getStatusColor(request.status)}>
-                      {request.status}
+                      {getLabel(statusLabels, request.status)}
                     </Badge>
                   </div>
                   <Badge variant="outline" className={getPriorityColor(request.priority)}>
-                    Priorité {request.priority}
+                    Priorité {getLabel(priorityLabels, request.priority)}
                   </Badge>
                 </div>
               </CardContent>

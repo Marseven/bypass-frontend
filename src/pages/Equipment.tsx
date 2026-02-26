@@ -20,6 +20,7 @@ import { Link } from 'react-router-dom';
 import api from '../axios';
 import { exportToCSV } from '../utils/exportData';
 import CsvImportDialog from '../components/CsvImportDialog';
+import { getLabel, equipmentStatusLabels, equipmentTypeLabels, criticalityLabels } from '@/utils/statusLabels';
 
 const Equipment = () => {
   const { toast } = useToast();
@@ -373,11 +374,11 @@ const Equipment = () => {
       const dataToExport = filteredEquipment.map(eq => ({
         'Code': eq.code,
         'Nom': eq.name,
-        'Type': eq.type,
+        'Type': getLabel(equipmentTypeLabels, eq.type),
         'Zone': eq.zone,
         'Fabricant': eq.fabricant || 'N/A',
-        'Statut': eq.status,
-        'Criticité': eq.criticite || 'N/A',
+        'Statut': getLabel(equipmentStatusLabels, eq.status),
+        'Criticité': getLabel(criticalityLabels, eq.criticite),
         'Nombre de capteurs': eq.sensors ? eq.sensors.length : 0
       }));
 
@@ -478,7 +479,7 @@ const Equipment = () => {
                     <SelectItem value="all">Tous les statuts</SelectItem>
                     {equipmentStatuses.map(status => (
                       <SelectItem key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                        {getLabel(equipmentStatusLabels, status)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -577,7 +578,7 @@ const Equipment = () => {
                         <SelectContent>
                           {equipmentTypes.map(type => (
                             <SelectItem key={type} value={type}>
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                              {getLabel(equipmentTypeLabels, type)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -652,7 +653,7 @@ const Equipment = () => {
                         <SelectContent>
                           {equipmentStatuses.map(status => (
                             <SelectItem key={status} value={status}>
-                              {status.charAt(0).toUpperCase() + status.slice(1)}
+                              {getLabel(equipmentStatusLabels, status)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -678,7 +679,7 @@ const Equipment = () => {
                         <SelectContent>
                           {criticalityLevels.map(level => (
                             <SelectItem key={level} value={level}>
-                              {level.charAt(0).toUpperCase() + level.slice(1)}
+                              {getLabel(criticalityLabels, level)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -971,7 +972,7 @@ const Equipment = () => {
                       </AlertDialog>
                     </div>
                   </div>
-                  <CardDescription className="text-[10px] sm:text-xs md:text-sm mt-1.5 sm:mt-2 break-words line-clamp-2">{eq.code} - {eq.type}</CardDescription>
+                  <CardDescription className="text-[10px] sm:text-xs md:text-sm mt-1.5 sm:mt-2 break-words line-clamp-2">{eq.code} - {getLabel(equipmentTypeLabels, eq.type)}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-1.5 sm:space-y-2 md:space-y-3 p-4 sm:p-5 md:p-6 pt-0 min-w-0">
                   <div className="flex items-center justify-between gap-2 min-w-0">
@@ -982,13 +983,13 @@ const Equipment = () => {
                     <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">Statut:</span>
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       <div className={`w-2 h-2 rounded-full ${getStatusColor(eq.status)}`} />
-                      <span className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap">{eq.status}</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap">{getLabel(equipmentStatusLabels, eq.status)}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between gap-2 min-w-0">
                     <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">Criticité:</span>
                     <span className={`text-[10px] sm:text-xs md:text-sm font-medium ${getCriticalityColor(eq.criticite)} truncate whitespace-nowrap flex-shrink-0`}>
-                      {eq.criticite}
+                      {getLabel(criticalityLabels, eq.criticite)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 min-w-0">
@@ -1074,13 +1075,13 @@ const Equipment = () => {
                               <div>{eq.name}</div>
                               <div className="text-xs text-muted-foreground md:hidden">{eq.code}</div>
                               <div className="text-xs text-muted-foreground lg:hidden">
-                                <Badge variant="outline" className="text-xs">{eq.type}</Badge>
+                                <Badge variant="outline" className="text-xs">{getLabel(equipmentTypeLabels, eq.type)}</Badge>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-xs sm:text-sm hidden md:table-cell">{eq.code}</TableCell>
                           <TableCell className="text-xs sm:text-sm hidden lg:table-cell">
-                            <Badge variant="outline" className="text-xs sm:text-sm">{eq.type}</Badge>
+                            <Badge variant="outline" className="text-xs sm:text-sm">{getLabel(equipmentTypeLabels, eq.type)}</Badge>
                           </TableCell>
                           <TableCell className="text-xs sm:text-sm">
                             <Badge variant="outline" className="text-xs sm:text-sm truncate max-w-[100px]">{eq.zone}</Badge>
@@ -1089,14 +1090,14 @@ const Equipment = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className={`w-2 h-2 rounded-full ${getStatusColor(eq.status)}`} />
-                              <span className="text-xs sm:text-sm">{eq.status}</span>
+                              <span className="text-xs sm:text-sm">{getLabel(equipmentStatusLabels, eq.status)}</span>
                             </div>
                             <div className="lg:hidden mt-1 space-y-1">
                               <div className="text-muted-foreground text-xs">Fabricant:</div>
                               <div className="text-xs">{eq.fabricant || 'N/A'}</div>
                               <div className="text-muted-foreground text-xs">Criticité:</div>
                               <span className={`text-xs font-medium ${getCriticalityColor(eq.criticite)}`}>
-                                {eq.criticite}
+                                {getLabel(criticalityLabels, eq.criticite)}
                               </span>
                               <div className="text-muted-foreground text-xs">Capteurs:</div>
                               <Badge variant="secondary" className="text-xs">{eq.sensors.length}</Badge>
@@ -1104,7 +1105,7 @@ const Equipment = () => {
                           </TableCell>
                           <TableCell className="text-xs sm:text-sm hidden md:table-cell">
                             <span className={`font-medium ${getCriticalityColor(eq.criticite)}`}>
-                              {eq.criticite}
+                              {getLabel(criticalityLabels, eq.criticite)}
                             </span>
                           </TableCell>
                           <TableCell className="text-xs sm:text-sm hidden md:table-cell">

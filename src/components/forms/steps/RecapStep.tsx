@@ -33,6 +33,14 @@ const IMPACT_LABELS: Record<string, string> = {
   very_high: 'Très élevé',
 };
 
+const URGENCY_LABELS: Record<string, string> = {
+  low: 'Faible',
+  normal: 'Normale',
+  high: 'Élevée',
+  critical: 'Critique',
+  emergency: 'Urgence',
+};
+
 export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName, showOra }: RecapStepProps) {
   const values = form.getValues();
 
@@ -69,7 +77,7 @@ export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName,
             )}
           </div>
           <div><span className="text-muted-foreground">Raison:</span> {REASON_LABELS[values.reason] || values.reason}</div>
-          <div><span className="text-muted-foreground">Urgence:</span> {values.urgencyLevel}</div>
+          <div><span className="text-muted-foreground">Urgence:</span> {URGENCY_LABELS[values.urgencyLevel] || values.urgencyLevel}</div>
           <div><span className="text-muted-foreground">Début:</span> {values.plannedStartDate}</div>
           <div><span className="text-muted-foreground">Durée:</span> {values.estimatedDuration}h</div>
           <div><span className="text-muted-foreground">Justification:</span> {values.detailedJustification}</div>

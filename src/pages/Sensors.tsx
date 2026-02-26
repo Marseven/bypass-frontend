@@ -148,8 +148,8 @@ const Sensors: React.FC = () => {
 
   const handleExport = () => {
     exportToCSV(filteredSensors.map(s => ({
-      Code: s.code, Nom: s.name, Type: s.type, Unité: s.unit || 'N/A',
-      'Seuil critique': s.criticalThreshold || 'N/A', Statut: s.status,
+      Code: s.code, Nom: s.name, Type: getTypeLabel(s.type), Unité: s.unit || 'N/A',
+      'Seuil critique': s.criticalThreshold || 'N/A', Statut: getStatusLabel(s.status),
       Équipement: s.equipmentName || 'N/A'
     })), `capteurs_${new Date().toISOString().split('T')[0]}`);
     toast.success('Export réussi');
@@ -161,6 +161,14 @@ const Sensors: React.FC = () => {
       flow: 'Débit', level: 'Niveau', speed: 'Vitesse', position: 'Position', other: 'Autre'
     };
     return map[type] || type;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      active: 'Sain', bypassed: 'En bypass', maintenance: 'En maintenance',
+      inactive: 'Inactif', faulty: 'En défaut'
+    };
+    return map[status] || status;
   };
 
   const getStatusBadge = (status: string) => {

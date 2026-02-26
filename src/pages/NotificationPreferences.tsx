@@ -19,7 +19,7 @@ const EVENT_TYPES = [
 const CHANNELS = [
   { key: 'email', label: 'Email' },
   { key: 'whatsapp', label: 'WhatsApp' },
-  { key: 'in_app', label: 'In-App' },
+  { key: 'in_app', label: 'Application' },
 ] as const;
 
 type PreferenceMap = Record<string, Record<string, boolean>>;

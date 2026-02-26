@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useLocation, Link } from "react-router-dom"
+import { getLabel, statusLabels, priorityLabels } from "@/utils/statusLabels"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -732,10 +733,10 @@ export default function Requests() {
                         </div>
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                           <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                            {request.priority}
+                            {getLabel(priorityLabels, request.priority)}
                           </Badge>
                           <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                            {request.status}
+                            {getLabel(statusLabels, request.status)}
                           </Badge>
                         </div>
                       </CardHeader>

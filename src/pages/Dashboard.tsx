@@ -27,6 +27,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLe
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts"
 import { Skeleton } from "@/components/ui/skeleton"
 import { exportToCSV } from '../utils/exportData'
+import { getLabel, statusLabels, priorityLabels } from '@/utils/statusLabels'
 
 export default function Dashboard() {
   const [summary, setSummary] = useState({ active_requests: 0, pending_validation: 0, approved_today: 0, connected_users: 0 })
@@ -292,7 +293,7 @@ export default function Dashboard() {
               <Button variant="outline" size="sm" className="h-9 text-sm"
                 onClick={() => exportToCSV(filteredActiveRequests.map(r => ({
                   Code: r.request_code, Equipement: r.equipment?.name, Capteur: r.sensor?.name,
-                  Priorité: r.priority, Statut: r.status
+                  Priorité: getLabel(priorityLabels, r.priority), Statut: getLabel(statusLabels, r.status)
                 })), 'interventions-actives')}
               >
                 <Download className="w-3.5 h-3.5 mr-1.5" />
