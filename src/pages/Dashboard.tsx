@@ -10,6 +10,10 @@ import {
   BarChart3,
   Download,
   Filter,
+  Clock,
+  CheckCircle2,
+  Timer,
+  type LucideIcon,
 } from "lucide-react"
 import { BypassExpirationBar } from "@/components/dashboard/BypassExpirationBar"
 import { useState, useEffect } from 'react';
@@ -170,30 +174,38 @@ export default function Dashboard() {
     return matchZone && matchRisk;
   })
 
-  const stats = [
+  const stats: { title: string; value: number; subtitle: string; variant: "accent" | "accent-destructive" | "accent-warning" | "accent-success"; icon: LucideIcon; iconColor: string }[] = [
     {
       title: "Bypass Actifs",
       value: summary.active_requests,
       subtitle: `${summary.active_requests > 0 ? 'Interventions en cours' : 'Aucune intervention'}`,
-      variant: "accent" as const,
+      variant: "accent",
+      icon: Activity,
+      iconColor: "text-primary",
     },
     {
       title: "Risque Critique (SIL 3)",
       value: activeRequests.filter(r => r.priority?.toLowerCase() === 'critical').length,
       subtitle: "Surveillance renforcee",
-      variant: "accent-destructive" as const,
+      variant: "accent-destructive",
+      icon: AlertTriangle,
+      iconColor: "text-red-400",
     },
     {
       title: "En attente d'approbation",
       value: summary.pending_validation,
       subtitle: "Validation requise",
-      variant: "accent-warning" as const,
+      variant: "accent-warning",
+      icon: Clock,
+      iconColor: "text-amber-400",
     },
     {
       title: "Approuves aujourd'hui",
       value: summary.approved_today,
       subtitle: "Validations effectuees",
-      variant: "accent-success" as const,
+      variant: "accent-success",
+      icon: CheckCircle2,
+      iconColor: "text-emerald-400",
     },
     {
       title: "Expirant < 4h",
@@ -203,7 +215,9 @@ export default function Dashboard() {
         return remaining > 0 && remaining < 4 * 3600000;
       }).length,
       subtitle: "Attention requise",
-      variant: "accent-warning" as const,
+      variant: "accent-warning",
+      icon: Timer,
+      iconColor: "text-amber-400",
     }
   ]
 
@@ -230,10 +244,15 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <Card key={stat.title} variant={stat.variant}>
             <CardContent className="p-5">
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">{stat.title}</p>
-                <p className="text-3xl font-display font-bold tracking-tight">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">{stat.title}</p>
+                  <p className="text-3xl font-display font-bold tracking-tight">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+                </div>
+                <div className={`p-2 rounded-md bg-muted/50 ${stat.iconColor}`}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
               </div>
             </CardContent>
           </Card>
