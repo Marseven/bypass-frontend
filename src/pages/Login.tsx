@@ -162,7 +162,7 @@ export default function Login() {
               <div className="absolute inset-0 border-4 border-transparent border-t-primary border-r-primary rounded-full animate-spin" style={{ animationDuration: '1s' }}></div>
               {/* Logo au centre */}
               <div className="relative z-10 w-20 h-20 flex items-center justify-center bg-card rounded-xl p-3 shadow-lg">
-                <img src="/logo.png" alt="Logo ByPass Guard" className="w-full h-full object-contain" />
+                <img src="/logo.png" alt="Logo ByPass Guard" className="w-full h-full object-contain brightness-0 invert" />
               </div>
             </div>
             <div className="text-center">
@@ -176,7 +176,7 @@ export default function Login() {
       <Card variant="glass" className={`w-full max-w-md border-border/30 relative ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center w-16 h-18 mx-auto mb-4">
-            <img src="/logo.png" alt="Logo ByPass Guard" />
+            <img src="/logo.png" alt="Logo ByPass Guard" className="brightness-0 invert" />
           </div>
           <CardTitle className="text-2xl font-display font-bold text-gradient-primary">
             {appName}
