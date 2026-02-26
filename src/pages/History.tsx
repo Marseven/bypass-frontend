@@ -44,7 +44,7 @@ export default function History() {
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined)
   const [requestList, setRequestList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [isLoading, setIsLoading] = useState(true);
 
   const getDateRange = (filter: string) => {

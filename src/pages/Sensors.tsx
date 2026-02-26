@@ -1,25 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Pencil, Trash2, Search, Download, Upload, Loader2, Radio, AlertTriangle, Activity, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Download, Upload, Loader2, Radio, Eye } from 'lucide-react';
 import { Sensor, SensorType, SensorStatus } from '@/types/equipment';
 import { toast } from 'sonner';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { Equipment } from '@/types/equipment';
 import api from '../axios';
 import { exportToCSV } from '../utils/exportData';
 import CsvImportDialog from '../components/CsvImportDialog';
+import { DataTable } from '@/components/ui/data-table';
 
 type SensorWithEquipment = Sensor & { equipmentName?: string; equipmentCode?: string; };
+
+const getTypeLabel = (type: string) => {
+  const map: Record<string, string> = {
+    temperature: 'Température', pressure: 'Pression', vibration: 'Vibration',
+    flow: 'Débit', level: 'Niveau', speed: 'Vitesse', position: 'Position', other: 'Autre'
+  };
+  return map[type] || type;
+};
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'active': return <Badge className="bg-primary text-primary-foreground text-xs font-bold">SAIN</Badge>;
+    case 'bypassed': return <Badge className="bg-red-600 text-white text-xs font-bold">EN BYPASS</Badge>;
+    case 'maintenance': return <Badge variant="outline" className="text-xs font-bold">EN MAINTENANCE</Badge>;
+    case 'inactive': case 'faulty': return <Badge className="bg-orange-500 text-white text-xs font-bold">EN DÉFAUT</Badge>;
+    default: return <Badge variant="outline" className="text-xs">{status}</Badge>;
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    active: 'Sain', bypassed: 'En bypass', maintenance: 'En maintenance',
+    inactive: 'Inactif', faulty: 'En défaut'
+  };
+  return map[status] || status;
+};
 
 const Sensors: React.FC = () => {
   const navigate = useNavigate();
@@ -36,8 +62,6 @@ const Sensors: React.FC = () => {
     minValue: 0, maxValue: 100, criticalThreshold: 80, equipmentId: '', status: 'active' as SensorStatus
   });
   const [sensors, setSensors] = useState<SensorWithEquipment[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(15);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,15 +106,6 @@ const Sensors: React.FC = () => {
     const matchEquip = selectedEquipment === 'all' || String(s.equipmentId) === selectedEquipment;
     return matchSearch && matchType && matchStatus && matchEquip;
   });
-
-  const totalPages = Math.ceil(filteredSensors.length / itemsPerPage);
-  const paginatedSensors = filteredSensors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedType, selectedStatus, selectedEquipment]);
-  useEffect(() => {
-    const tp = Math.ceil(filteredSensors.length / itemsPerPage);
-    if (tp > 0 && currentPage > tp) setCurrentPage(tp);
-  }, [filteredSensors.length]);
 
   const handleAddSensor = async () => {
     setIsSubmitting(true);
@@ -155,31 +170,75 @@ const Sensors: React.FC = () => {
     toast.success('Export réussi');
   };
 
-  const getTypeLabel = (type: string) => {
-    const map: Record<string, string> = {
-      temperature: 'Température', pressure: 'Pression', vibration: 'Vibration',
-      flow: 'Débit', level: 'Niveau', speed: 'Vitesse', position: 'Position', other: 'Autre'
-    };
-    return map[type] || type;
-  };
-
-  const getStatusLabel = (status: string) => {
-    const map: Record<string, string> = {
-      active: 'Sain', bypassed: 'En bypass', maintenance: 'En maintenance',
-      inactive: 'Inactif', faulty: 'En défaut'
-    };
-    return map[status] || status;
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active': return <Badge className="bg-primary text-primary-foreground text-xs font-bold">SAIN</Badge>
-      case 'bypassed': return <Badge className="bg-red-600 text-white text-xs font-bold">EN BYPASS</Badge>
-      case 'maintenance': return <Badge variant="outline" className="text-xs font-bold">EN MAINTENANCE</Badge>
-      case 'inactive': case 'faulty': return <Badge className="bg-orange-500 text-white text-xs font-bold">EN DÉFAUT</Badge>
-      default: return <Badge variant="outline" className="text-xs">{status}</Badge>
-    }
-  };
+  const columns = useMemo<ColumnDef<SensorWithEquipment, any>[]>(() => [
+    {
+      accessorKey: 'code',
+      header: 'Identifiant & Description',
+      cell: ({ row }) => (
+        <div>
+          <span className="font-mono font-semibold text-primary text-sm">{row.original.code}</span>
+          <p className="text-xs text-muted-foreground mt-0.5">{row.original.name}</p>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ getValue }) => <span className="text-sm">{getTypeLabel(getValue() as string)}</span>,
+    },
+    {
+      accessorKey: 'equipmentName',
+      header: 'Zone',
+      cell: ({ getValue }) => <span className="text-sm text-muted-foreground">{(getValue() as string) || 'N/A'}</span>,
+    },
+    {
+      accessorKey: 'criticalThreshold',
+      header: 'Seuil',
+      cell: ({ row }) => row.original.criticalThreshold ? (
+        <Badge variant="outline" className="text-xs">{row.original.criticalThreshold} {row.original.unit}</Badge>
+      ) : <span>-</span>,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Statut actuel',
+      cell: ({ getValue }) => getStatusBadge(getValue() as string),
+    },
+    {
+      id: 'actions',
+      header: () => <span className="text-right block">Actions</span>,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const s = row.original;
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/sensors/${s.id}`)}>
+              <Eye className="w-3.5 h-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSensor(s)}>
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Supprimer {s.code} ?</AlertDialogTitle>
+                  <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleDeleteSensor(s.id)}>Supprimer</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        );
+      },
+    },
+  ], [navigate]);
 
   const activeCount = sensors.filter(s => s.status === 'active').length;
   const bypassedCount = sensors.filter(s => s.status === 'bypassed').length;
@@ -273,97 +332,10 @@ const Sensors: React.FC = () => {
               <p>Aucun capteur trouvé</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Identifiant & Description</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Type</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Zone</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Seuil</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground">Statut actuel</TableHead>
-                    <TableHead className="text-xs font-semibold uppercase text-muted-foreground text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedSensors.map((s) => (
-                    <TableRow key={s.id} className="hover:bg-muted/50">
-                      <TableCell>
-                        <div>
-                          <span className="font-mono font-semibold text-primary text-sm">{s.code}</span>
-                          <p className="text-xs text-muted-foreground mt-0.5">{s.name}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">{getTypeLabel(s.type)}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{s.equipmentName || 'N/A'}</TableCell>
-                      <TableCell>
-                        {s.criticalThreshold ? (
-                          <Badge variant="outline" className="text-xs">{s.criticalThreshold} {s.unit}</Badge>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(s.status)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/sensors/${s.id}`)}>
-                            <Eye className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/sensors/${s.id}/edit`)}>
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Supprimer {s.code} ?</AlertDialogTitle>
-                                <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteSensor(s.id)}>Supprimer</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <DataTable columns={columns} data={filteredSensors} pageSize={12} />
           )}
         </CardContent>
       </Card>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-end">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(currentPage - 1); }}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
-              </PaginationItem>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const page = totalPages <= 5 ? i + 1 : Math.max(1, Math.min(currentPage - 2, totalPages - 4)) + i;
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(page); }}
-                      isActive={currentPage === page} className="cursor-pointer">{page}</PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-              <PaginationItem>
-                <PaginationNext href="#" onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(currentPage + 1); }}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
 
       {/* Add/Edit Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); }}>

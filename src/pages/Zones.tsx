@@ -31,7 +31,7 @@ const Zones = () => {
   const { toast } = useToast();
   const [zones, setZones] = useState<Zone[]>([]); // 👈 initialise avec un tableau vide
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [isLoading, setIsLoading] = useState(true);

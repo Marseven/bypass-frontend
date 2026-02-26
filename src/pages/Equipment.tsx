@@ -34,7 +34,7 @@ const Equipment = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [zones, setZones] = useState<Zone[]>([])
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>(isMobile ? 'grid' : 'grid');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);

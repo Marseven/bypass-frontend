@@ -96,7 +96,7 @@ export default function Requests() {
   const [isLoadingActive, setIsLoadingActive] = useState(false);
   const { user } = useAuthStore();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   const [activeTab, setActiveTab] = useState(user?.role !== 'user' ? "mine" : "mine");
   
   // Fonction pour obtenir l'état de chargement selon l'onglet actif
