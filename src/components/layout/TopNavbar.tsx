@@ -42,6 +42,7 @@ export function TopNavbar() {
         toast({
           title: 'Deconnexion reussie',
           description: 'Impatient de vous revoir.',
+          variant: 'success',
         });
         navigate('/login');
       } else {

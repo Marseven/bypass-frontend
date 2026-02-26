@@ -775,7 +775,7 @@ export default function Requests() {
                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
                           {/* Section 1 : Identité de la demande */}
                           <div className="flex items-start gap-3 sm:gap-4 flex-shrink-0">
-                            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex-shrink-0">
+                            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/15 flex-shrink-0">
                               <div className="text-blue-600">
                                 {(request.status === "Approuvé" || request.status === "approved") ? (
                                   <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -794,10 +794,10 @@ export default function Requests() {
                                   {request.request_code}
                                 </CardTitle>
                                 <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.priority}
+                                  {getLabel(priorityLabels, request.priority)}
                                 </Badge>
                                 <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.status}
+                                  {getLabel(statusLabels, request.status)}
                                 </Badge>
                               </div>
                               <div className="space-y-1">
@@ -1104,7 +1104,7 @@ export default function Requests() {
                               {/* Section 1 : Gauche - Icône + Code + Badges */}
                               <div className="flex items-start gap-3 sm:gap-4 flex-shrink-0">
                                 {/* Icône circulaire avec status */}
-                                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex-shrink-0">
+                                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/15 flex-shrink-0">
                                   <div className="text-blue-600">
                                     {(request.status === "Approuvé" || request.status === "approved") ? (
                                       <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -1124,10 +1124,10 @@ export default function Requests() {
                                       {request.request_code}
                                     </CardTitle>
                                     <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                      {request.priority}
+                                      {getLabel(priorityLabels, request.priority)}
                                     </Badge>
                                     <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                      {request.status}
+                                      {getLabel(statusLabels, request.status)}
                                     </Badge>
                                   </div>
                                   {/* Équipement et capteur sur deux lignes */}
@@ -1487,10 +1487,10 @@ export default function Requests() {
                               </div>
                               <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                                 <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.priority}
+                                  {getLabel(priorityLabels, request.priority)}
                                 </Badge>
                                 <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.status}
+                                  {getLabel(statusLabels, request.status)}
                                 </Badge>
                               </div>
                             </CardHeader>
@@ -1529,7 +1529,7 @@ export default function Requests() {
                               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
                                 {/* Section 1 */}
                                 <div className="flex items-start gap-3 sm:gap-4 flex-shrink-0">
-                                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex-shrink-0">
+                                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/15 flex-shrink-0">
                                     <div className="text-blue-600">
                                       {(request.status === "Approuvé" || request.status === "approved") ? (
                                         <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -1548,10 +1548,10 @@ export default function Requests() {
                                         {request.request_code}
                                       </CardTitle>
                                       <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                        {request.priority}
+                                        {getLabel(priorityLabels, request.priority)}
                                       </Badge>
                                       <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                        {request.status}
+                                        {getLabel(statusLabels, request.status)}
                                       </Badge>
                                     </div>
                                     <div className="space-y-1">
@@ -1904,10 +1904,10 @@ export default function Requests() {
                               </div>
                               <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                                 <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.priority}
+                                  {getLabel(priorityLabels, request.priority)}
                                 </Badge>
                                 <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                  {request.status}
+                                  {getLabel(statusLabels, request.status)}
                                 </Badge>
                               </div>
                             </CardHeader>
@@ -1946,7 +1946,7 @@ export default function Requests() {
                               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
                                 {/* Section 1 */}
                                 <div className="flex items-start gap-3 sm:gap-4 flex-shrink-0">
-                                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex-shrink-0">
+                                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/15 flex-shrink-0">
                                     <div className="text-blue-600">
                                       {(request.status === "Approuvé" || request.status === "approved") ? (
                                         <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -1965,10 +1965,10 @@ export default function Requests() {
                                         {request.request_code}
                                       </CardTitle>
                                       <Badge variant="outline" className={getPriorityColor(request.priority) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                        {request.priority}
+                                        {getLabel(priorityLabels, request.priority)}
                                       </Badge>
                                       <Badge className={getStatusColor(request.status) + " text-xs whitespace-nowrap flex-shrink-0"}>
-                                        {request.status}
+                                        {getLabel(statusLabels, request.status)}
                                       </Badge>
                                     </div>
                                     <div className="space-y-1">

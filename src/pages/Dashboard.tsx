@@ -10,8 +10,6 @@ import {
   BarChart3,
   Download,
   Filter,
-  MoreVertical,
-  Eye
 } from "lucide-react"
 import { BypassExpirationBar } from "@/components/dashboard/BypassExpirationBar"
 import { useState, useEffect } from 'react';
@@ -24,6 +22,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "rec
 import { Skeleton } from "@/components/ui/skeleton"
 import { exportToCSV } from '../utils/exportData'
 import { getLabel, statusLabels, priorityLabels } from '@/utils/statusLabels'
+import { RequestDetailsModal } from "@/components/RequestDetailsModal"
 
 export default function Dashboard() {
   const [summary, setSummary] = useState({ active_requests: 0, pending_validation: 0, approved_today: 0, connected_users: 0 })
@@ -340,16 +339,7 @@ export default function Dashboard() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                            <Link to="/requests">
-                              <Eye className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <RequestDetailsModal request={request} />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Pencil, Trash2, Search, Download, Loader2, Radio, AlertTriangle, Activity, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Download, Upload, Loader2, Radio, AlertTriangle, Activity, Eye } from 'lucide-react';
 import { Sensor, SensorType, SensorStatus } from '@/types/equipment';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
@@ -206,6 +206,10 @@ const Sensors: React.FC = () => {
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
             Exporter CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setIsImportDialogOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Importer
           </Button>
           <Button size="sm" onClick={() => { resetForm(); setIsAddDialogOpen(true); }}>
             <Plus className="w-4 h-4 mr-2" />

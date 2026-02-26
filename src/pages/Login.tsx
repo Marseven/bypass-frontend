@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +28,17 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { user, token, login } = useAuthStore();
+  const [appName, setAppName] = useState('MineSafe OS');
+  const [appTagline, setAppTagline] = useState('Connectez-vous pour acceder au systeme de gestion des bypass');
+
+  useEffect(() => {
+    api.get('/settings/public')
+      .then(response => {
+        if (response.data?.app_name) setAppName(response.data.app_name);
+        if (response.data?.app_tagline) setAppTagline(response.data.app_tagline);
+      })
+      .catch(() => {});
+  }, []);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -62,6 +73,7 @@ export default function Login() {
         toast({
           title: 'Connexion reussie',
           description: 'Vous etes maintenant connecte.',
+          variant: 'success',
         });
 
         // Recuperer les notifications apres la connexion
@@ -98,7 +110,8 @@ export default function Login() {
               toast({
                 title: title,
                 description: description,
-                duration: 5000, // 5 secondes
+                duration: 5000,
+                variant: 'info',
               });
             }, index * 600); // Delai de 600ms entre chaque notification pour eviter qu'elles se chevauchent
           });
@@ -166,10 +179,10 @@ export default function Login() {
             <img src="/logo.png" alt="Logo ByPass Guard" />
           </div>
           <CardTitle className="text-2xl font-display font-bold text-gradient-primary">
-            MineSafe OS
+            {appName}
           </CardTitle>
           <CardDescription>
-            Connectez-vous pour acceder au systeme de gestion des bypass
+            {appTagline}
           </CardDescription>
         </CardHeader>
         <CardContent>
