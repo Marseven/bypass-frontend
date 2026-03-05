@@ -15,6 +15,7 @@ export type User = {
   role: UserRole;
   is_active: number;
   phone: string;
+  two_fa_enabled?: boolean;
 };
 
 interface AuthState {
@@ -25,6 +26,8 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   isOnline: boolean;
+  awaiting2FA: boolean;
+  tempToken: string | null;
 
   login: (user: User, token: string) => void;
   logout: () => void;
@@ -32,6 +35,7 @@ interface AuthState {
   updateUser: (partial: Partial<User>) => void;
   fetchUsers: () => Promise<void>;
   setOnline: (online: boolean) => void;
+  set2FAState: (awaiting: boolean, token: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -44,10 +48,12 @@ export const useAuthStore = create<AuthState>()(
       loading: false,
       error: null,
       isOnline: true,
+      awaiting2FA: false,
+      tempToken: null,
 
-      login: (user, token) => set({ isLogin: true, user, token }),
+      login: (user, token) => set({ isLogin: true, user, token, awaiting2FA: false, tempToken: null }),
 
-      logout: () => set({ isLogin: false, user: null, token: '', users: [] }),
+      logout: () => set({ isLogin: false, user: null, token: '', users: [], awaiting2FA: false, tempToken: null }),
 
       setUsers: (users) => set({ users }),
 
@@ -69,10 +75,19 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setOnline: (online) => set({ isOnline: online }),
+
+      set2FAState: (awaiting, token) => set({ awaiting2FA: awaiting, tempToken: token }),
     }),
     {
       name: 'auth-storage',
-      partials: undefined,
+      partialize: (state) => ({
+        isLogin: state.isLogin,
+        user: state.user,
+        token: state.token,
+        users: state.users,
+        isOnline: state.isOnline,
+        // Exclude awaiting2FA and tempToken from persistence
+      }),
       // Migrate from redux-persist format on first load
       onRehydrateStorage: () => {
         return (_state, error) => {

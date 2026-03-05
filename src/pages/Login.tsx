@@ -27,7 +27,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { user, token, login } = useAuthStore();
+  const { user, token, login, set2FAState } = useAuthStore();
   const [appName, setAppName] = useState('ByPass');
   const [appTagline, setAppTagline] = useState('Connectez-vous pour acceder au systeme de gestion des bypass');
 
@@ -66,9 +66,14 @@ export default function Login() {
         data: data
       });
 
-      console.log('Success:', res.data.data);
+      // Handle 2FA required
+      if (res.data.requires_2fa) {
+        set2FAState(true, res.data.temp_token);
+        navigate('/login/verify-2fa', { replace: true });
+        return;
+      }
 
-      if (res.data.data.length !== 0) {
+      if (res.data.data && Object.keys(res.data.data).length !== 0) {
         login(res.data.data.user, res.data.data.token);
         toast({
           title: 'Connexion reussie',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,12 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { User, Mail, Phone, Shield, Calendar, Eye, EyeOff, Save, Edit, Lock, UserCircle, ArrowLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { User, Mail, Phone, Shield, Calendar, Eye, EyeOff, Save, Edit, Lock, UserCircle, ArrowLeft, Smartphone, Copy, Check, ShieldCheck, ShieldOff } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 import api from '../axios';
 import { Link } from 'react-router-dom';
 import { PhoneInputField } from '@/components/ui/phone-input';
+import QRCode from 'qrcode';
 
 // Extraire firstName et lastName depuis full_name
 const extractNames = (fullName: string | undefined) => {
@@ -37,6 +40,18 @@ const Profile: React.FC = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // 2FA state
+  const [showSetupDialog, setShowSetupDialog] = useState(false);
+  const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
+  const [showDisableDialog, setShowDisableDialog] = useState(false);
+  const [twoFASecret, setTwoFASecret] = useState('');
+  const [twoFAQrDataUrl, setTwoFAQrDataUrl] = useState('');
+  const [twoFAOtpCode, setTwoFAOtpCode] = useState('');
+  const [twoFABackupCodes, setTwoFABackupCodes] = useState<string[]>([]);
+  const [twoFADisablePassword, setTwoFADisablePassword] = useState('');
+  const [twoFALoading, setTwoFALoading] = useState(false);
+  const [copiedCodes, setCopiedCodes] = useState(false);
 
   // Mettre à jour formData quand user change
   useEffect(() => {
@@ -138,6 +153,66 @@ const Profile: React.FC = () => {
       newPassword: '',
       confirmPassword: ''
     });
+  };
+
+  const handleSetup2FA = async () => {
+    setTwoFALoading(true);
+    try {
+      const res = await api.post('/auth/2fa/setup');
+      setTwoFASecret(res.data.secret);
+      const dataUrl = await QRCode.toDataURL(res.data.otpauth_url, { width: 256, margin: 2 });
+      setTwoFAQrDataUrl(dataUrl);
+      setShowSetupDialog(true);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la configuration 2FA');
+    } finally {
+      setTwoFALoading(false);
+    }
+  };
+
+  const handleEnable2FA = async () => {
+    if (twoFAOtpCode.length !== 6) return;
+    setTwoFALoading(true);
+    try {
+      const res = await api.post('/auth/2fa/enable', { code: twoFAOtpCode });
+      setTwoFABackupCodes(res.data.backup_codes);
+      setShowSetupDialog(false);
+      setShowBackupCodesDialog(true);
+      updateUser({ two_fa_enabled: true } as any);
+      setTwoFAOtpCode('');
+      toast.success('2FA activee avec succes');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Code OTP invalide');
+    } finally {
+      setTwoFALoading(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!twoFADisablePassword) return;
+    setTwoFALoading(true);
+    try {
+      await api.post('/auth/2fa/disable', { password: twoFADisablePassword });
+      updateUser({ two_fa_enabled: false } as any);
+      setShowDisableDialog(false);
+      setTwoFADisablePassword('');
+      toast.success('2FA desactivee avec succes');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Mot de passe incorrect');
+    } finally {
+      setTwoFALoading(false);
+    }
+  };
+
+  const handleCopyBackupCodes = async () => {
+    try {
+      await navigator.clipboard.writeText(twoFABackupCodes.join('\n'));
+      setCopiedCodes(true);
+      setTimeout(() => setCopiedCodes(false), 2000);
+      toast.success('Codes copies dans le presse-papiers');
+    } catch {
+      toast.error('Impossible de copier les codes');
+    }
   };
 
   if (!user) {
@@ -368,6 +443,52 @@ const Profile: React.FC = () => {
 
           <Separator />
 
+          {/* Section 2b: Authentification a deux facteurs */}
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b">
+              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold">Authentification a deux facteurs</h2>
+            </div>
+            {user.two_fa_enabled ? (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-md bg-muted">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">2FA activee</p>
+                    <p className="text-xs text-muted-foreground">Votre compte est protege par l'authentification a deux facteurs.</p>
+                  </div>
+                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDisableDialog(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <ShieldOff className="w-4 h-4 mr-2" />
+                  Desactiver
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-md bg-muted">
+                <div>
+                  <p className="text-sm font-medium">2FA desactivee</p>
+                  <p className="text-xs text-muted-foreground">Ajoutez une couche de securite supplementaire a votre compte avec Google Authenticator.</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleSetup2FA}
+                  disabled={twoFALoading}
+                  className="w-full sm:w-auto"
+                >
+                  <Smartphone className="w-4 h-4 mr-2" />
+                  Activer la 2FA
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
           {/* Section 3: Modification du mot de passe */}
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b">
@@ -441,6 +562,112 @@ const Profile: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* 2FA Setup Dialog */}
+      <Dialog open={showSetupDialog} onOpenChange={(open) => { if (!open) { setShowSetupDialog(false); setTwoFAOtpCode(''); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configurer la 2FA</DialogTitle>
+            <DialogDescription>
+              Scannez le QR code avec Google Authenticator ou une application compatible, puis saisissez le code a 6 chiffres.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            {twoFAQrDataUrl && (
+              <img src={twoFAQrDataUrl} alt="QR Code 2FA" className="w-48 h-48 rounded-lg border p-2 bg-white" />
+            )}
+            <div className="text-center space-y-1">
+              <p className="text-xs text-muted-foreground">Ou saisissez ce code manuellement :</p>
+              <code className="text-sm font-mono bg-muted px-3 py-1 rounded select-all">{twoFASecret}</code>
+            </div>
+            <div className="w-full space-y-2">
+              <Label className="text-sm">Code de verification</Label>
+              <div className="flex justify-center">
+                <InputOTP maxLength={6} value={twoFAOtpCode} onChange={setTwoFAOtpCode} disabled={twoFALoading}>
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                  </InputOTPGroup>
+                  <span className="mx-2 text-muted-foreground">-</span>
+                  <InputOTPGroup>
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowSetupDialog(false); setTwoFAOtpCode(''); }}>
+              Annuler
+            </Button>
+            <Button onClick={handleEnable2FA} disabled={twoFALoading || twoFAOtpCode.length !== 6}>
+              {twoFALoading ? 'Verification...' : 'Verifier et activer'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Backup Codes Dialog */}
+      <Dialog open={showBackupCodesDialog} onOpenChange={(open) => { if (!open) { setShowBackupCodesDialog(false); setTwoFABackupCodes([]); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Codes de secours</DialogTitle>
+            <DialogDescription>
+              Conservez ces codes en lieu sur. Chaque code ne peut etre utilise qu'une seule fois pour vous connecter si vous n'avez pas acces a votre application d'authentification.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded-lg font-mono text-sm">
+              {twoFABackupCodes.map((code, i) => (
+                <div key={i} className="text-center py-1">{code}</div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={handleCopyBackupCodes} className="w-full sm:w-auto">
+              {copiedCodes ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+              {copiedCodes ? 'Copie !' : 'Copier les codes'}
+            </Button>
+            <Button onClick={() => { setShowBackupCodesDialog(false); setTwoFABackupCodes([]); }} className="w-full sm:w-auto">
+              J'ai sauvegarde mes codes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Disable 2FA Dialog */}
+      <Dialog open={showDisableDialog} onOpenChange={(open) => { if (!open) { setShowDisableDialog(false); setTwoFADisablePassword(''); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Desactiver la 2FA</DialogTitle>
+            <DialogDescription>
+              Saisissez votre mot de passe pour confirmer la desactivation de l'authentification a deux facteurs.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            <Label htmlFor="disable2faPassword">Mot de passe</Label>
+            <Input
+              id="disable2faPassword"
+              type="password"
+              value={twoFADisablePassword}
+              onChange={(e) => setTwoFADisablePassword(e.target.value)}
+              placeholder="Votre mot de passe"
+              disabled={twoFALoading}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowDisableDialog(false); setTwoFADisablePassword(''); }}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDisable2FA} disabled={twoFALoading || !twoFADisablePassword}>
+              {twoFALoading ? 'Desactivation...' : 'Desactiver la 2FA'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
