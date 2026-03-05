@@ -233,7 +233,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border/50 p-5">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
+            <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert" />
           </div>
           {!collapsed && (
             <div>

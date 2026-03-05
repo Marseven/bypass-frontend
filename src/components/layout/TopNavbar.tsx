@@ -20,6 +20,7 @@ import echo from "../../utils/echo";
 import { useEffect, useState } from "react";
 import Tinting from "../ui/notifications"
 import { OfflineIndicator } from "./OfflineIndicator"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function TopNavbar() {
   const { toast } = useToast();
@@ -93,6 +94,9 @@ export function TopNavbar() {
                 setNotifications(updatedNotifications);
               }}
             />
+
+            {/* Theme toggle */}
+            <ThemeToggle />
 
             {/* User menu */}
             <DropdownMenu>

@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import api from "./axios";
 import { useInactivityLogout } from "./hooks/useInactivityLogout";
 import { Loader2 } from "lucide-react";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Requests = lazy(() => import("./pages/Requests"));
@@ -84,13 +85,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="bypass-theme">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -193,10 +195,11 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
