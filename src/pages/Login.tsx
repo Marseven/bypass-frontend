@@ -252,16 +252,12 @@ export default function Login() {
               />
 
               <div className="flex justify-end">
-                <button
-                  type="button"
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-primary hover:underline"
-                  onClick={() => toast({
-                    title: 'Mot de passe oublié',
-                    description: 'Contactez votre administrateur pour réinitialiser votre mot de passe.',
-                  })}
                 >
-                  Mot de passe oublié ?
-                </button>
+                  Mot de passe oublie ?
+                </Link>
               </div>
 
               <Button
