@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import Tinting from "../ui/notifications"
 import { OfflineIndicator } from "./OfflineIndicator"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { getRoleLabel } from "@/utils/roles"
 
 export function TopNavbar() {
   const { toast } = useToast();
@@ -107,7 +108,7 @@ export function TopNavbar() {
                   </div>
                   <div className="text-left hidden sm:block">
                     <p className="text-sm font-medium truncate max-w-[120px]">{user?.full_name}</p>
-                    <p className="text-xs text-muted-foreground truncate max-w-[120px]">{user?.role}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[120px]">{getRoleLabel(user?.role || '')}</p>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
                 </Button>

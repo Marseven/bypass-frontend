@@ -51,7 +51,9 @@ export default function Verify2FA() {
         variant: 'success',
       });
 
-      if (res.data.data.user.role === 'user') {
+      if (res.data.data.user.role === 'operateur') {
+        navigate('/requests/mine', { replace: true });
+      } else if (res.data.data.user.role === 'user') {
         navigate('/requests/new', { replace: true });
       } else {
         navigate('/', { replace: true });

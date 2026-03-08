@@ -184,22 +184,47 @@ export const BypassRequestForm = () => {
     try {
       const values = form.getValues();
 
+      if (isDraft) {
+        if (!values.equipmentId || !values.sensorId) {
+          toast.error('Veuillez sélectionner un équipement et un capteur avant de sauvegarder le brouillon');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const payload: any = {
-        reason: values.reason,
-        detailedJustification: values.detailedJustification,
-        urgencyLevel: values.urgencyLevel,
-        equipmentId: parseInt(values.equipmentId),
-        sensorId: parseInt(values.sensorId),
-        plannedStartDate: values.plannedStartDate,
-        estimatedDuration: parseInt(values.estimatedDuration),
-        safetyImpact: values.safetyImpact,
-        operationalImpact: values.operationalImpact,
-        environmentalImpact: values.environmentalImpact,
-        mitigationMeasures: values.mitigationMeasures,
-        contingencyPlan: values.contingencyPlan || undefined,
-        bypassType: values.bypassType,
         isDraft,
       };
+
+      if (values.reason) payload.reason = values.reason;
+      if (values.detailedJustification) payload.detailedJustification = values.detailedJustification;
+      if (values.urgencyLevel) payload.urgencyLevel = values.urgencyLevel;
+      if (values.equipmentId) payload.equipmentId = parseInt(values.equipmentId);
+      if (values.sensorId) payload.sensorId = parseInt(values.sensorId);
+      if (values.plannedStartDate) payload.plannedStartDate = values.plannedStartDate;
+      if (values.estimatedDuration) payload.estimatedDuration = parseInt(values.estimatedDuration);
+      if (values.safetyImpact) payload.safetyImpact = values.safetyImpact;
+      if (values.operationalImpact) payload.operationalImpact = values.operationalImpact;
+      if (values.environmentalImpact) payload.environmentalImpact = values.environmentalImpact;
+      if (values.mitigationMeasures?.length) payload.mitigationMeasures = values.mitigationMeasures;
+      if (values.contingencyPlan) payload.contingencyPlan = values.contingencyPlan;
+      if (values.bypassType) payload.bypassType = values.bypassType;
+
+      if (!isDraft) {
+        payload.reason = values.reason;
+        payload.detailedJustification = values.detailedJustification;
+        payload.urgencyLevel = values.urgencyLevel;
+        payload.equipmentId = parseInt(values.equipmentId);
+        payload.sensorId = parseInt(values.sensorId);
+        payload.plannedStartDate = values.plannedStartDate;
+        payload.estimatedDuration = parseInt(values.estimatedDuration);
+        payload.safetyImpact = values.safetyImpact;
+        payload.operationalImpact = values.operationalImpact;
+        payload.environmentalImpact = values.environmentalImpact;
+        payload.mitigationMeasures = values.mitigationMeasures;
+        payload.contingencyPlan = values.contingencyPlan || undefined;
+        payload.bypassType = values.bypassType;
+      }
 
       const response = await api.post('/requests', payload);
 

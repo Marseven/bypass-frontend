@@ -90,11 +90,11 @@ export function getStatusColor(status: string): string {
 
 // Role-based access helpers
 export function canViewDashboard(role: UserRole): boolean {
-  return role !== 'operateur' && role !== 'user';
+  return role !== 'user';
 }
 
 export function canCreateBypass(role: UserRole): boolean {
-  return ['technicien', 'instrumentiste', 'chef_de_quart', 'resp_exploitation', 'directeur', 'administrateur', 'user', 'supervisor', 'director', 'administrator'].includes(role);
+  return ['technicien', 'instrumentiste', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'user', 'supervisor', 'director', 'administrator'].includes(role);
 }
 
 export function canValidate(role: UserRole): boolean {

@@ -50,7 +50,9 @@ export default function Login() {
 
   // Redirect if already authenticated
   if (token) {
-    if(user.role === 'user'){
+    if(user.role === 'operateur'){
+      return <Navigate to="/requests/mine" replace />;
+    } else if(user.role === 'user'){
       return <Navigate to="/requests/new" replace />;
     } else{
       return <Navigate to="/" replace />;
@@ -125,7 +127,9 @@ export default function Login() {
           // Ne pas bloquer la connexion si la recuperation des notifications echoue
         }
 
-        if(res.data.data.user.role === 'user'){
+        if(res.data.data.user.role === 'operateur'){
+          navigate('/requests/mine', { replace: true });
+        } else if(res.data.data.user.role === 'user'){
           navigate('/requests/new', { replace: true });
         } else {
           navigate('/', { replace: true });
@@ -198,11 +202,11 @@ export default function Login() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email ou Nom d'utilisateur</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
-                        placeholder="administrateur"
+                        placeholder="nom.utilisateur ou email"
                         disabled={isLoading}
                         {...field}
                       />
@@ -246,6 +250,19 @@ export default function Login() {
                   </FormItem>
                 )}
               />
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => toast({
+                    title: 'Mot de passe oublié',
+                    description: 'Contactez votre administrateur pour réinitialiser votre mot de passe.',
+                  })}
+                >
+                  Mot de passe oublié ?
+                </button>
+              </div>
 
               <Button
                 type="submit"

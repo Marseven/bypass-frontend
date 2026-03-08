@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BYPASS_TYPE_LABELS, CRITICALITY_LABELS, DUREE_TYPE_LABELS } from "@/utils/roles";
 
@@ -73,6 +73,9 @@ export function DetailsStep({ form, autoCalculatedCriticite, autoCalculatedDuree
                 ))}
               </SelectContent>
             </Select>
+            <FormDescription>
+              Maintenance, Opérationnel ou Permissif. La criticité (Sécurité/Process) est calculée automatiquement depuis le SIL de l'équipement.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

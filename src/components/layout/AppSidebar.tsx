@@ -124,7 +124,7 @@ export function AppSidebar() {
       url: "/",
       icon: LayoutDashboard,
       badge: null,
-      role: ['chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
+      role: ['operateur', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
     },
     {
       title: "Bypass Actifs",

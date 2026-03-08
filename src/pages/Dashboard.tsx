@@ -42,10 +42,14 @@ export default function Dashboard() {
   const [isLoadingSensors, setIsLoadingSensors] = useState(true)
   const [systemStatus, setSystemStatus] = useState({ monitored_equipment: 0, online_sensors: 0, active_alerts: 0, system_performance: 0 })
 
-  useEffect(() => {
+  const fetchSummary = () => {
     api.get('/dashboard/summary')
       .then(response => setSummary(response.data))
       .catch(error => console.error('Error fetching summary:', error));
+  };
+
+  useEffect(() => {
+    fetchSummary();
 
     api.get('/requests?status=approved')
       .then(response => {
@@ -68,6 +72,9 @@ export default function Dashboard() {
 
     fetchChartData('day');
     fetchTopSensors();
+
+    const interval = setInterval(fetchSummary, 30000);
+    return () => clearInterval(interval);
   }, [])
 
   const fetchChartData = (filter: 'day' | 'month' | 'year') => {

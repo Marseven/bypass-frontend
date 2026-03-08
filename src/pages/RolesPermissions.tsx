@@ -12,6 +12,7 @@ import { Edit2, Shield, Save, Key, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../axios';
 import { Link } from 'react-router-dom';
+import { getRoleLabel } from '@/utils/roles';
 
 interface Role {
   id: number;
@@ -394,12 +395,12 @@ const RolesPermissions: React.FC = () => {
                       <TableRow key={role.id}>
                         <TableCell className="font-medium text-xs sm:text-sm min-w-0 overflow-hidden">
                           <div className="flex flex-col sm:block min-w-0">
-                            <span className="truncate sm:whitespace-normal">{role.name}</span>
+                            <span className="truncate sm:whitespace-normal">{getRoleLabel(role.name)}</span>
                             <span className="text-xs text-muted-foreground sm:hidden mt-1 truncate">{role.guard_name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell min-w-0 overflow-hidden">
-                          <Badge variant="outline" className="text-xs whitespace-nowrap">{role.name}</Badge>
+                          <Badge variant="outline" className="text-xs whitespace-nowrap">{getRoleLabel(role.name)}</Badge>
                         </TableCell>
                         <TableCell className="text-xs sm:text-sm hidden md:table-cell truncate min-w-0 overflow-hidden max-w-[200px]">
                           {role.name === 'user' ? 'Utilisateur standard pouvant soumettre des demandes' :

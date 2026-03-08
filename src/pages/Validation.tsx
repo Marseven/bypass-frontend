@@ -29,6 +29,8 @@ export default function Validation() {
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [approveTarget, setApproveTarget] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [isLoading, setIsLoading] = useState(true);
@@ -305,7 +307,7 @@ export default function Validation() {
                                 Refuser
                               </Button>
                               <Button size="sm" className="h-8 text-xs"
-                                onClick={() => acceptedRequest(request.id, { validation_status: "approved" }, '', request)}>
+                                onClick={() => { setApproveTarget(request); setIsApproveDialogOpen(true); }}>
                                 Approuver
                               </Button>
                             </>
@@ -430,6 +432,99 @@ export default function Validation() {
                 }}>
                 <XCircle className="w-4 h-4 mr-2" />
                 Confirmer le rejet
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Approval Confirmation Dialog */}
+      {approveTarget && (
+        <Dialog open={isApproveDialogOpen} onOpenChange={(open) => { if (!open) { setIsApproveDialogOpen(false); setApproveTarget(null); } }}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Approuver la demande {approveTarget.request_code}</DialogTitle>
+              <DialogDescription>
+                Vérifiez les détails avant de confirmer l'approbation.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Demandeur</p>
+                  <p className="font-medium">{approveTarget.requester?.full_name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Équipement</p>
+                  <p>{approveTarget.equipment?.name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Capteur</p>
+                  <p className="font-mono font-semibold text-primary">{approveTarget.sensor?.code || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Zone</p>
+                  <p>{approveTarget.equipment?.zone?.name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Risque</p>
+                  {getRiskBadge(approveTarget.priority)}
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Motif</p>
+                  <p>{getMaintenanceLabel(approveTarget.title)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Durée</p>
+                  <p>{approveTarget.estimated_duration ? `${approveTarget.estimated_duration}h` : 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Validation</p>
+                  <Badge variant="outline" className="text-xs font-medium">
+                    {getValidationLevelLabel(approveTarget)}
+                  </Badge>
+                </div>
+              </div>
+
+              {approveTarget.description && (
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Description</p>
+                  <p className="text-sm text-muted-foreground">{approveTarget.description}</p>
+                </div>
+              )}
+
+              {requiresDualValidation(approveTarget.priority) && (
+                <div className="p-3 bg-muted/30 rounded-lg border text-sm">
+                  <p className="font-medium mb-2">Validation double requise</p>
+                  <div className="flex gap-4">
+                    <div>
+                      <span className="text-xs text-muted-foreground">Niveau 1: </span>
+                      <Badge variant="outline" className="text-xs">
+                        {approveTarget.validation_status_level1 === 'approved' ? 'Approuvé' : 'En attente'}
+                      </Badge>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground">Niveau 2: </span>
+                      <Badge variant="outline" className="text-xs">
+                        {approveTarget.validation_status_level2 === 'approved' ? 'Approuvé' : 'En attente'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => { setIsApproveDialogOpen(false); setApproveTarget(null); }}>
+                Annuler
+              </Button>
+              <Button
+                onClick={() => {
+                  acceptedRequest(approveTarget.id, { validation_status: "approved" }, '', approveTarget);
+                  setIsApproveDialogOpen(false);
+                  setApproveTarget(null);
+                }}>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Confirmer l'approbation
               </Button>
             </DialogFooter>
           </DialogContent>

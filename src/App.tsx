@@ -99,7 +99,7 @@ const App = () => (
               <Route path="/login/verify-2fa" element={<Verify2FA />} />
               <Route path="/register" element={<Register />} />
               <Route path="/" element={
-                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director']}>
+                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'operateur']}>
                   <Layout><Dashboard /></Layout>
                 </ProtectedRoute>
               } />
@@ -109,7 +109,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/requests/new" element={
-                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'technicien', 'instrumentiste', 'operateur', 'user']}>
+                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'technicien', 'instrumentiste', 'user']}>
                   <Layout><Requests /></Layout>
                 </ProtectedRoute>
               } />

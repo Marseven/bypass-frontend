@@ -15,7 +15,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, ch
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/requests/new" replace />;
+    const fallback = user.role === 'operateur' ? '/requests/mine' : '/requests/new';
+    return <Navigate to={fallback} replace />;
   }
 
   return <>{children}</>;
