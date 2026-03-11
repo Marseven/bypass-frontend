@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { getAllZones, getEquipmentByZone } from '@/data/mockEquipment';
 import { Link } from 'react-router-dom';
 import api from '../axios';
@@ -28,7 +28,6 @@ interface Zone {
 
 
 const Zones = () => {
-  const { toast } = useToast();
   const [zones, setZones] = useState<Zone[]>([]); // 👈 initialise avec un tableau vide
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
@@ -132,15 +131,11 @@ const Zones = () => {
         await fetchZones();
         
         if (data) {
-          toast({
-            title: "Zone modifiée",
-            description: "La zone a été mise à jour avec succès.",
+          toast.success('Zone modifiée', {
+            description: 'La zone a été mise à jour avec succès.',
           });
         } else {
-          toast({
-            title: 'Échec de la mise à jour',
-            variant: 'destructive',
-          });
+          toast.error('Échec de la mise à jour');
         }
       } else {
         const data = await api({
@@ -152,15 +147,11 @@ const Zones = () => {
         await fetchZones();
         
         if (data) {
-          toast({
-            title: "Zone créée",
-            description: "La nouvelle zone a été ajoutée avec succès.",
+          toast.success('Zone créée', {
+            description: 'La nouvelle zone a été ajoutée avec succès.',
           });
         } else {
-          toast({
-            title: 'Échec de la création',
-            variant: 'destructive',
-          });
+          toast.error('Échec de la création');
         }
       }
       
@@ -169,10 +160,8 @@ const Zones = () => {
       setFormData({ name: '', description: ''});
     } catch (error: any) {
       console.error('Error submitting zone:', error);
-      toast({
-        title: "Erreur",
-        description: error.response?.data?.message || (editingZone ? "Erreur lors de la modification de la zone." : "Erreur lors de la création de la zone."),
-        variant: 'destructive',
+      toast.error('Erreur', {
+        description: error.response?.data?.message || (editingZone ? 'Erreur lors de la modification de la zone.' : 'Erreur lors de la création de la zone.'),
       });
     } finally {
       setIsSubmitting(false);
@@ -192,19 +181,16 @@ const Zones = () => {
   const handleDelete = async (zoneId: string | number) => {
     try {
       await api.delete(`/zones/${zoneId}`);
-      toast({
-        title: "Zone supprimée",
-        description: "La zone a été supprimée avec succès.",
+      toast.success('Zone supprimée', {
+        description: 'La zone a été supprimée avec succès.',
       });
       // Recharger la liste des zones après suppression
       await fetchZones();
       // Ajuster la pagination si nécessaire (l'effet s'en chargera automatiquement)
     } catch (error: any) {
       console.error('Error deleting zone:', error);
-      toast({
-        title: "Erreur",
-        description: error.response?.data?.message || "Erreur lors de la suppression de la zone.",
-        variant: "destructive",
+      toast.error('Erreur', {
+        description: error.response?.data?.message || 'Erreur lors de la suppression de la zone.',
       });
     }
   };
@@ -225,16 +211,13 @@ const Zones = () => {
       }));
 
       exportToCSV(dataToExport, `zones_${new Date().toISOString().split('T')[0]}`);
-      toast({
-        title: "Export réussi",
-        description: "Les données ont été exportées avec succès.",
+      toast.success('Export réussi', {
+        description: 'Les données ont été exportées avec succès.',
       });
     } catch (error) {
       console.error('Error exporting data:', error);
-      toast({
-        title: "Erreur d'export",
+      toast.error("Erreur d'export", {
         description: "Une erreur est survenue lors de l'export des données.",
-        variant: "destructive",
       });
     }
   };
@@ -750,9 +733,8 @@ const Zones = () => {
         importType="zones"
         onImportSuccess={() => {
           fetchZones();
-          toast({
-            title: "Import réussi",
-            description: "Les zones ont été importées avec succès.",
+          toast.success('Import réussi', {
+            description: 'Les zones ont été importées avec succès.',
           });
         }}
       />

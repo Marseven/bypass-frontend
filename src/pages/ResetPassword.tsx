@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
 import api from '../axios';
 
@@ -24,7 +24,6 @@ const resetSchema = z.object({
 type ResetFormData = z.infer<typeof resetSchema>;
 
 export default function ResetPassword() {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,17 +47,13 @@ export default function ResetPassword() {
     setIsLoading(true);
     try {
       await api.post('/auth/reset-password', data);
-      toast({
-        title: 'Mot de passe reinitialise',
+      toast.success('Mot de passe reinitialise', {
         description: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
-        variant: 'success',
       });
       navigate('/login', { replace: true });
     } catch (error: any) {
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: error.response?.data?.message || 'Le lien est invalide ou a expire.',
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

@@ -14,7 +14,7 @@ import { Bell, ChevronDown, ExternalLink, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import api from "../../axios"
 
 type BypassReason = 
@@ -28,7 +28,6 @@ type BypassReason =
   | 'other';
 
 export default function Tinting({ userId, notification, onNotificationUpdate }) {
-  const { toast } = useToast()
   const [notifications, setNotifications] = useState([])
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -106,9 +105,8 @@ export default function Tinting({ userId, notification, onNotificationUpdate }) 
           });
           
           // Afficher un toast pour les nouvelles notifications
-          toast({
-            title: "Nouvelle notification",
-            description: notificationData.description || notificationData.title || "Vous avez une nouvelle notification",
+          toast.info('Nouvelle notification', {
+            description: notificationData.description || notificationData.title || 'Vous avez une nouvelle notification',
           });
         });
 
@@ -129,7 +127,7 @@ export default function Tinting({ userId, notification, onNotificationUpdate }) 
         console.error('Error setting up Echo channel:', error);
       }
     }
-  }, [userId, toast])
+  }, [userId])
 
   const reasonLabels: Record<BypassReason, string> = {
     preventive_maintenance: 'Maintenance préventive',
@@ -196,16 +194,13 @@ export default function Tinting({ userId, notification, onNotificationUpdate }) 
         }
         
         // Afficher un toast de confirmation
-        toast({
-          title: "Notification marquée comme lue",
-          description: "La notification a été marquée comme lue.",
+        toast.success('Notification marquée comme lue', {
+          description: 'La notification a été marquée comme lue.',
         });
       } catch (error) {
         console.error('Error marking notification as read:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de marquer la notification comme lue.",
-          variant: "destructive",
+        toast.error('Erreur', {
+          description: 'Impossible de marquer la notification comme lue.',
         });
       }
     }

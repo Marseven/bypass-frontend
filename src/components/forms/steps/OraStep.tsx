@@ -2,29 +2,55 @@ import { UseFormReturn } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
 
 interface OraStepProps {
   form: UseFormReturn<any>;
 }
 
+const DANGER_OPTIONS = [
+  { id: 'perte_detection_gaz', label: 'Perte de détection gaz' },
+  { id: 'perte_protection_incendie', label: 'Perte de protection incendie' },
+  { id: 'perte_arret_urgence', label: 'Perte d\'arrêt d\'urgence' },
+  { id: 'perte_controle_pression', label: 'Perte de contrôle de pression' },
+  { id: 'perte_controle_temperature', label: 'Perte de contrôle de température' },
+  { id: 'perte_controle_niveau', label: 'Perte de contrôle de niveau' },
+  { id: 'risque_fuite_produit', label: 'Risque de fuite de produit dangereux' },
+  { id: 'risque_explosion', label: 'Risque d\'explosion' },
+  { id: 'risque_electrique', label: 'Risque électrique' },
+  { id: 'risque_environnemental', label: 'Risque environnemental' },
+];
+
+const MESURE_OPTIONS = [
+  { id: 'ronde_supplementaire', label: 'Ronde de surveillance supplémentaire' },
+  { id: 'detecteur_portable', label: 'Détecteur portable en service' },
+  { id: 'surveillance_continue', label: 'Surveillance opérateur continue' },
+  { id: 'alarme_temporaire', label: 'Alarme temporaire mise en place' },
+  { id: 'procedure_urgence', label: 'Procédure d\'urgence communiquée' },
+  { id: 'restriction_acces', label: 'Restriction d\'accès à la zone' },
+  { id: 'extincteur_supplementaire', label: 'Extincteur supplémentaire positionné' },
+  { id: 'communication_equipe', label: 'Communication renforcée avec l\'équipe' },
+  { id: 'backup_manuel', label: 'Contrôle manuel de secours activé' },
+  { id: 'reduction_charge', label: 'Réduction de charge / débit' },
+];
+
 export function OraStep({ form }: OraStepProps) {
-  const [newMesure, setNewMesure] = useState("");
+  const selectedDangers: string[] = form.watch("oraDangersIdentifies") || [];
+  const selectedMesures: string[] = form.watch("oraMesuresCompensatoires") || [];
 
-  const mesures = form.watch("oraMesuresCompensatoires") || [];
-
-  const addMesure = () => {
-    if (newMesure.trim()) {
-      form.setValue("oraMesuresCompensatoires", [...mesures, newMesure.trim()]);
-      setNewMesure("");
-    }
+  const toggleDanger = (dangerId: string, checked: boolean) => {
+    const updated = checked
+      ? [...selectedDangers, dangerId]
+      : selectedDangers.filter((d: string) => d !== dangerId);
+    form.setValue("oraDangersIdentifies", updated, { shouldValidate: true });
   };
 
-  const removeMesure = (index: number) => {
-    form.setValue("oraMesuresCompensatoires", mesures.filter((_: string, i: number) => i !== index));
+  const toggleMesure = (mesureId: string, checked: boolean) => {
+    const updated = checked
+      ? [...selectedMesures, mesureId]
+      : selectedMesures.filter((m: string) => m !== mesureId);
+    form.setValue("oraMesuresCompensatoires", updated, { shouldValidate: true });
   };
 
   return (
@@ -39,16 +65,42 @@ export function OraStep({ form }: OraStepProps) {
         </p>
       </div>
 
+      {/* Dangers - Multi-select checkboxes */}
       <FormField
         control={form.control}
         name="oraDangersIdentifies"
-        render={({ field }) => (
+        render={() => (
           <FormItem>
             <FormLabel>Dangers identifiés</FormLabel>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+              {DANGER_OPTIONS.map(danger => (
+                <label
+                  key={danger.id}
+                  className="flex items-center gap-2 p-2.5 rounded-md border cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:bg-destructive/5 has-[:checked]:border-destructive/30"
+                >
+                  <Checkbox
+                    checked={selectedDangers.includes(danger.id)}
+                    onCheckedChange={(checked) => toggleDanger(danger.id, !!checked)}
+                  />
+                  <span className="text-sm">{danger.label}</span>
+                </label>
+              ))}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Autre danger (free text) */}
+      <FormField
+        control={form.control}
+        name="oraDangersAutre"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Autre danger (optionnel)</FormLabel>
             <FormControl>
-              <Textarea
-                rows={4}
-                placeholder="Décrivez les dangers identifiés suite à la mise en bypass de ce système de sécurité..."
+              <Input
+                placeholder="Décrivez un danger non listé ci-dessus..."
                 {...field}
               />
             </FormControl>
@@ -57,40 +109,52 @@ export function OraStep({ form }: OraStepProps) {
         )}
       />
 
-      <div>
-        <FormLabel>Mesures compensatoires</FormLabel>
-        <div className="flex gap-2 mt-2">
-          <Input
-            value={newMesure}
-            onChange={(e) => setNewMesure(e.target.value)}
-            placeholder="Ajouter une mesure compensatoire"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addMesure();
-              }
-            }}
-          />
-          <Button type="button" size="icon" onClick={addMesure}>
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-        {mesures.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {mesures.map((mesure: string, index: number) => (
-              <li key={index} className="flex items-center gap-2 text-sm bg-muted p-2 rounded">
-                <span className="flex-1">{mesure}</span>
-                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeMesure(index)}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </li>
-            ))}
-          </ul>
+      {/* Mesures compensatoires - Multi-select checkboxes */}
+      <FormField
+        control={form.control}
+        name="oraMesuresCompensatoires"
+        render={() => (
+          <FormItem>
+            <FormLabel>Mesures compensatoires</FormLabel>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+              {MESURE_OPTIONS.map(mesure => (
+                <label
+                  key={mesure.id}
+                  className="flex items-center gap-2 p-2.5 rounded-md border cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:bg-primary/5 has-[:checked]:border-primary/30"
+                >
+                  <Checkbox
+                    checked={selectedMesures.includes(mesure.id)}
+                    onCheckedChange={(checked) => toggleMesure(mesure.id, !!checked)}
+                  />
+                  <span className="text-sm">{mesure.label}</span>
+                </label>
+              ))}
+            </div>
+            {selectedMesures.length === 0 && (
+              <p className="text-sm text-muted-foreground mt-2">Au moins une mesure compensatoire est requise.</p>
+            )}
+            <FormMessage />
+          </FormItem>
         )}
-        {mesures.length === 0 && (
-          <p className="text-sm text-muted-foreground mt-2">Au moins une mesure compensatoire est requise.</p>
+      />
+
+      {/* Autre mesure (free text) */}
+      <FormField
+        control={form.control}
+        name="oraMesuresAutre"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Autre mesure compensatoire (optionnel)</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Décrivez une mesure non listée ci-dessus..."
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
-      </div>
+      />
 
       <FormField
         control={form.control}

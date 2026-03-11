@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { mockEquipment, getAllZones } from '@/data/mockEquipment';
 import type { Equipment, EquipmentType, EquipmentStatus, CriticalityLevel, Zone } from '@/types/equipment';
@@ -23,7 +23,6 @@ import CsvImportDialog from '../components/CsvImportDialog';
 import { getLabel, equipmentStatusLabels, equipmentTypeLabels, criticalityLabels } from '@/utils/statusLabels';
 
 const Equipment = () => {
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -243,15 +242,11 @@ const Equipment = () => {
         await fetchEquipment();
         
         if (data) {
-          toast({
-            title: "Équipement modifié",
+          toast.success('Équipement modifié', {
             description: "L'équipement a été mis à jour avec succès.",
           });
         } else {
-          toast({
-            title: 'Échec de la mise à jour',
-            variant: 'destructive',
-          });
+          toast.error('Échec de la mise à jour');
         }
       } else {
         const newEquipment: Equipment = {
@@ -286,15 +281,11 @@ const Equipment = () => {
         await fetchEquipment();
         
         if (data) {
-          toast({
-            title: "Équipement créé",
+          toast.success('Équipement créé', {
             description: "Le nouvel équipement a été ajouté avec succès.",
           });
         } else {
-          toast({
-            title: 'Échec de la création',
-            variant: 'destructive',
-          });
+          toast.error('Échec de la création');
         }
       }
       
@@ -309,10 +300,8 @@ const Equipment = () => {
       });
     } catch (error: any) {
       console.error('Error submitting equipment:', error);
-      toast({
-        title: "Erreur",
+      toast.error('Erreur', {
         description: error.response?.data?.message || (editingEquipment ? "Erreur lors de la modification de l'équipement." : "Erreur lors de la création de l'équipement."),
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -340,8 +329,7 @@ const Equipment = () => {
   const handleDelete = async (equipmentId: string) => {
     try {
       await api.delete(`/equipment/${equipmentId}`);
-      toast({
-        title: "Équipement supprimé",
+      toast.success('Équipement supprimé', {
         description: "L'équipement a été supprimé avec succès.",
       });
       // Recharger la liste des équipements après suppression
@@ -349,10 +337,8 @@ const Equipment = () => {
       // Ajuster la pagination si nécessaire (l'effet s'en chargera automatiquement)
     } catch (error: any) {
       console.error('Error deleting equipment:', error);
-      toast({
-        title: "Erreur",
+      toast.error('Erreur', {
         description: error.response?.data?.message || "Erreur lors de la suppression de l'équipement.",
-        variant: "destructive",
       });
     }
   };
@@ -383,16 +369,13 @@ const Equipment = () => {
       }));
 
       exportToCSV(dataToExport, `equipements_${new Date().toISOString().split('T')[0]}`);
-      toast({
-        title: "Export réussi",
-        description: "Les données ont été exportées avec succès.",
+      toast.success('Export réussi', {
+        description: 'Les données ont été exportées avec succès.',
       });
     } catch (error) {
       console.error('Error exporting data:', error);
-      toast({
-        title: "Erreur d'export",
+      toast.error("Erreur d'export", {
         description: "Une erreur est survenue lors de l'export des données.",
-        variant: "destructive",
       });
     }
   };
@@ -1247,9 +1230,8 @@ const Equipment = () => {
         importType="equipment"
         onImportSuccess={() => {
           fetchEquipment();
-          toast({
-            title: "Import réussi",
-            description: "Les équipements ont été importés avec succès.",
+          toast.success('Import réussi', {
+            description: 'Les équipements ont été importés avec succès.',
           });
         }}
       />

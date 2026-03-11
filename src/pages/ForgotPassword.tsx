@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { ArrowLeft, Loader2, Mail } from 'lucide-react';
 import api from '../axios';
 
@@ -18,7 +18,6 @@ const forgotSchema = z.object({
 type ForgotFormData = z.infer<typeof forgotSchema>;
 
 export default function ForgotPassword() {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -33,10 +32,8 @@ export default function ForgotPassword() {
       await api.post('/auth/forgot-password', data);
       setSubmitted(true);
     } catch (error: any) {
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: error.response?.data?.message || 'Une erreur est survenue.',
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

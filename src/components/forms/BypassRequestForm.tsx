@@ -27,7 +27,10 @@ const requestSchema = z.object({
   bypassType: z.enum(['maintenance', 'operationnel', 'permissif']),
   reason: z.enum(['preventive_maintenance', 'corrective_maintenance', 'calibration', 'testing', 'emergency_repair', 'system_upgrade', 'investigation', 'other']),
   urgencyLevel: z.enum(['low', 'normal', 'high', 'critical', 'emergency']),
-  plannedStartDate: z.string().min(1, 'Date de début requise'),
+  plannedStartDate: z.string().min(1, 'Date de début requise').refine(
+    (val) => new Date(val) >= new Date(new Date().toISOString().slice(0, 16)),
+    'La date de début doit être dans le futur'
+  ),
   estimatedDuration: z.string().min(1, 'Durée requise'),
   detailedJustification: z.string().min(20, 'Justification minimale: 20 caractères'),
   safetyImpact: z.enum(['very_low', 'low', 'medium', 'high', 'very_high']),
@@ -37,8 +40,10 @@ const requestSchema = z.object({
   contingencyPlan: z.string().optional(),
 
   // Step 3: ORA (conditional)
-  oraDangersIdentifies: z.string().optional(),
+  oraDangersIdentifies: z.array(z.string()).optional(),
+  oraDangersAutre: z.string().optional(),
   oraMesuresCompensatoires: z.array(z.string()).optional(),
+  oraMesuresAutre: z.string().optional(),
   oraIplAffectees: z.string().optional(),
 
   // Step 4: Recap
@@ -77,8 +82,10 @@ export const BypassRequestForm = () => {
       environmentalImpact: undefined,
       mitigationMeasures: [],
       contingencyPlan: '',
-      oraDangersIdentifies: '',
+      oraDangersIdentifies: [],
+      oraDangersAutre: '',
       oraMesuresCompensatoires: [],
+      oraMesuresAutre: '',
       oraIplAffectees: '',
       safetyAck1: false,
       safetyAck2: false,
@@ -229,11 +236,19 @@ export const BypassRequestForm = () => {
       const response = await api.post('/requests', payload);
 
       // If ORA is needed, create it after the request
-      if (requiresOra && values.oraDangersIdentifies && !isDraft) {
+      if (requiresOra && values.oraDangersIdentifies?.length && !isDraft) {
         const requestId = response.data.data?.id || response.data.id;
+        const allDangers = [...values.oraDangersIdentifies];
+        if (values.oraDangersAutre?.trim()) {
+          allDangers.push(values.oraDangersAutre.trim());
+        }
+        const allMesures = [...(values.oraMesuresCompensatoires || [])];
+        if (values.oraMesuresAutre?.trim()) {
+          allMesures.push(values.oraMesuresAutre.trim());
+        }
         await api.post(`/requests/${requestId}/ora`, {
-          dangers_identifies: values.oraDangersIdentifies,
-          mesures_compensatoires: values.oraMesuresCompensatoires,
+          dangers_identifies: allDangers.join(', '),
+          mesures_compensatoires: allMesures,
           ipl_affectees: values.oraIplAffectees || undefined,
         });
       }
@@ -265,33 +280,35 @@ export const BypassRequestForm = () => {
         <Form {...form}>
           <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
             {/* Step 1: Equipment */}
-            {currentStep === 1 && (
+            <div className={currentStep === 1 ? '' : 'hidden'}>
               <EquipmentStep form={form} />
-            )}
+            </div>
 
             {/* Step 2: Details */}
-            {currentStep === 2 && (
+            <div className={currentStep === 2 ? '' : 'hidden'}>
               <DetailsStep
                 form={form}
                 autoCalculatedCriticite={criticite}
                 autoCalculatedDureeType={dureeType}
               />
-            )}
+            </div>
 
-            {/* Step 3: ORA (conditional) or Recap */}
-            {currentStep === 3 && requiresOra && (
-              <OraStep form={form} />
+            {/* Step 3: ORA (conditional) */}
+            {requiresOra && (
+              <div className={currentStep === 3 ? '' : 'hidden'}>
+                <OraStep form={form} />
+              </div>
             )}
 
             {/* Recap step */}
-            {currentStep === recapStep && (
+            <div className={currentStep === recapStep ? '' : 'hidden'}>
               <RecapStep
                 form={form}
                 equipmentName={equipmentInfo?.name}
                 sensorName={undefined}
                 showOra={requiresOra}
               />
-            )}
+            </div>
 
             {/* Navigation buttons */}
             <div className="flex justify-between pt-4 border-t">

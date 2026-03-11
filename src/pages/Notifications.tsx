@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Bell, CheckCircle2, Circle } from 'lucide-react';
 import api from '../axios';
 
@@ -29,7 +29,6 @@ interface Notification {
 }
 
 const Notifications = () => {
-  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
@@ -127,16 +126,13 @@ const Notifications = () => {
         );
         
         // Afficher un toast de confirmation
-        toast({
-          title: "Notification marquée comme lue",
-          description: "La notification a été marquée comme lue.",
+        toast.success('Notification marquée comme lue', {
+          description: 'La notification a été marquée comme lue.',
         });
       } catch (error) {
         console.error('Error marking notification as read:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de marquer la notification comme lue.",
-          variant: "destructive",
+        toast.error('Erreur', {
+          description: 'Impossible de marquer la notification comme lue.',
         });
       }
     }

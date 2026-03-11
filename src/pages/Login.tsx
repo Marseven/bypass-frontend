@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogIn, Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -23,7 +23,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   // const { login, isAuthenticated } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,13 +49,7 @@ export default function Login() {
 
   // Redirect if already authenticated
   if (token) {
-    if(user.role === 'operateur'){
-      return <Navigate to="/requests/mine" replace />;
-    } else if(user.role === 'user'){
-      return <Navigate to="/requests/new" replace />;
-    } else{
-      return <Navigate to="/" replace />;
-    }
+    return <Navigate to="/" replace />;
   }
 
   const onSubmit = async (data: LoginFormData) => {
@@ -77,10 +70,8 @@ export default function Login() {
 
       if (res.data.data && Object.keys(res.data.data).length !== 0) {
         login(res.data.data.user, res.data.data.token);
-        toast({
-          title: 'Connexion reussie',
+        toast.success('Connexion reussie', {
           description: 'Vous etes maintenant connecte.',
-          variant: 'success',
         });
 
         // Recuperer les notifications apres la connexion
@@ -114,11 +105,9 @@ export default function Login() {
                 : 'Nouvelle notification';
               const description = notification.data?.description || 'Vous avez une nouvelle notification';
 
-              toast({
-                title: title,
+              toast.info(title, {
                 description: description,
                 duration: 5000,
-                variant: 'info',
               });
             }, index * 600); // Delai de 600ms entre chaque notification pour eviter qu'elles se chevauchent
           });
@@ -127,28 +116,18 @@ export default function Login() {
           // Ne pas bloquer la connexion si la recuperation des notifications echoue
         }
 
-        if(res.data.data.user.role === 'operateur'){
-          navigate('/requests/mine', { replace: true });
-        } else if(res.data.data.user.role === 'user'){
-          navigate('/requests/new', { replace: true });
-        } else {
-          navigate('/', { replace: true });
-        }
+        navigate('/', { replace: true });
       } else {
         console.log('Login failed: ', res.data);
-        toast({
-          title: 'Echec de la connexion',
+        toast.error('Echec de la connexion', {
           description: 'Email ou mot de passe incorrect.',
-          variant: 'destructive',
         });
         setIsLoading(false);
       }
     } catch (error: any) {
       console.error('Error:', error);
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: error.response?.data?.message || 'Une erreur est survenue lors de la connexion.',
-        variant: 'destructive',
       });
       setIsLoading(false);
     }

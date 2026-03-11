@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import type { UserRole } from '@/types/user';
@@ -34,7 +34,6 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const { register, isAuthenticated } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -68,23 +67,18 @@ export default function Register() {
       const success = await register(userData);
       
       if (success) {
-        toast({
-          title: 'Compte créé avec succès',
+        toast.success('Compte créé avec succès', {
           description: 'Vous êtes maintenant connecté.',
         });
         navigate('/dashboard');
       } else {
-        toast({
-          title: 'Échec de la création du compte',
+        toast.error('Échec de la création du compte', {
           description: 'Cette adresse email est déjà utilisée.',
-          variant: 'destructive',
         });
       }
     } catch (error) {
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: 'Une erreur est survenue lors de la création du compte.',
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

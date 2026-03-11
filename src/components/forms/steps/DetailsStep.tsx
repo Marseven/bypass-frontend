@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { BYPASS_TYPE_LABELS, CRITICALITY_LABELS, DUREE_TYPE_LABELS } from "@/utils/roles";
+import { CRITICALITY_LABELS, DUREE_TYPE_LABELS } from "@/utils/roles";
 
 interface DetailsStepProps {
   form: UseFormReturn<any>;
@@ -40,6 +40,12 @@ const IMPACT_LEVELS = [
   { value: 'very_high', label: 'Très élevé' },
 ];
 
+const BYPASS_TYPES = [
+  { value: 'maintenance', label: 'Maintenance', description: 'Bypass pour travaux de maintenance planifiés ou correctifs' },
+  { value: 'operationnel', label: 'Opérationnel', description: 'Bypass lié aux contraintes d\'exploitation ou de production' },
+  { value: 'permissif', label: 'Permissif', description: 'Bypass autorisé sous conditions spécifiques (démarrage, arrêt, etc.)' },
+];
+
 const MITIGATION_OPTIONS = [
   { id: 'visual_inspection', label: 'Inspection visuelle renforcée' },
   { id: 'portable_detector', label: 'Détecteur portable en place' },
@@ -52,6 +58,10 @@ const MITIGATION_OPTIONS = [
 ];
 
 export function DetailsStep({ form, autoCalculatedCriticite, autoCalculatedDureeType }: DetailsStepProps) {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const minDateTime = now.toISOString().slice(0, 16);
+
   return (
     <div className="space-y-6">
       {/* Bypass Type */}
@@ -68,13 +78,18 @@ export function DetailsStep({ form, autoCalculatedCriticite, autoCalculatedDuree
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {Object.entries(BYPASS_TYPE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                {BYPASS_TYPES.map(bt => (
+                  <SelectItem key={bt.value} value={bt.value}>
+                    <div>
+                      <span className="font-medium">{bt.label}</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">{bt.description}</p>
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <FormDescription>
-              Maintenance, Opérationnel ou Permissif. La criticité (Sécurité/Process) est calculée automatiquement depuis le SIL de l'équipement.
+              La criticité (Sécurité/Process) est calculée automatiquement depuis le SIL de l'équipement.
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -131,11 +146,11 @@ export function DetailsStep({ form, autoCalculatedCriticite, autoCalculatedDuree
           name="urgencyLevel"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Niveau d'urgence</FormLabel>
+              <FormLabel>Priorité</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner l'urgence" />
+                    <SelectValue placeholder="Sélectionner la priorité" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -159,7 +174,7 @@ export function DetailsStep({ form, autoCalculatedCriticite, autoCalculatedDuree
             <FormItem>
               <FormLabel>Date de début prévue</FormLabel>
               <FormControl>
-                <Input type="datetime-local" {...field} />
+                <Input type="datetime-local" min={minDateTime} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

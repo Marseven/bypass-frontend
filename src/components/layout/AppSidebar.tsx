@@ -16,7 +16,7 @@ import {
   Eye,
   Radio
 } from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation, Link } from "react-router-dom"
 
 import {
   Sidebar,
@@ -124,7 +124,14 @@ export function AppSidebar() {
       url: "/",
       icon: LayoutDashboard,
       badge: null,
-      role: ['operateur', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
+      role: ['operateur', 'technicien', 'instrumentiste', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'user', 'supervisor', 'administrator', 'director']
+    },
+    {
+      title: "Nouvelle demande",
+      url: "/requests/new",
+      icon: FileText,
+      badge: null,
+      role: ['operateur', 'technicien', 'instrumentiste', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'user', 'supervisor', 'administrator', 'director']
     },
     {
       title: "Bypass Actifs",
@@ -165,7 +172,7 @@ export function AppSidebar() {
       url: "/equipment",
       icon: Shield,
       badge: null,
-      role: ['resp_exploitation', 'directeur', 'administrateur', 'administrator', 'director']
+      role: ['chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'administrateur', 'supervisor', 'administrator', 'director']
     },
     {
       title: "Utilisateurs",
@@ -231,7 +238,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border/50 p-5">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 cursor-pointer" onClick={handleLinkClick}>
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert" />
           </div>
@@ -241,7 +248,7 @@ export function AppSidebar() {
               <p className="text-[11px] text-sidebar-foreground/50">{appTagline}</p>
             </div>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4">
@@ -266,7 +273,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* ADMINISTRATION */}
-        {['administrateur', 'administrator', 'resp_exploitation', 'directeur', 'director'].includes(user.role) && (
+        {['administrateur', 'administrator', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'supervisor', 'director'].includes(user.role) && (
           <SidebarGroup className="mt-6">
             <SidebarGroupLabel className="text-sidebar-foreground/30 text-[11px] font-semibold uppercase tracking-wider px-2 mb-1">
               Administration
@@ -281,9 +288,9 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border/50 p-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={currentPath === '/settings'}>
+            <SidebarMenuButton asChild isActive={currentPath === (['administrateur', 'administrator'].includes(user.role) ? '/settings' : '/profile')}>
               <NavLink
-                to="/settings"
+                to={['administrateur', 'administrator'].includes(user.role) ? '/settings' : '/profile'}
                 className={({ isActive }) => getNavClass(isActive)}
                 onClick={handleLinkClick}
               >

@@ -77,7 +77,7 @@ export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName,
             )}
           </div>
           <div><span className="text-muted-foreground">Raison:</span> {REASON_LABELS[values.reason] || values.reason}</div>
-          <div><span className="text-muted-foreground">Urgence:</span> {URGENCY_LABELS[values.urgencyLevel] || values.urgencyLevel}</div>
+          <div><span className="text-muted-foreground">Priorité:</span> {URGENCY_LABELS[values.urgencyLevel] || values.urgencyLevel}</div>
           <div><span className="text-muted-foreground">Début:</span> {values.plannedStartDate}</div>
           <div><span className="text-muted-foreground">Durée:</span> {values.estimatedDuration}h</div>
           <div><span className="text-muted-foreground">Justification:</span> {values.detailedJustification}</div>
@@ -108,7 +108,7 @@ export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName,
         </CardContent>
       </Card>
 
-      {showOra && values.oraDangersIdentifies && (
+      {showOra && values.oraDangersIdentifies?.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -116,7 +116,17 @@ export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName,
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-1">
-            <div><span className="text-muted-foreground">Dangers:</span> {values.oraDangersIdentifies}</div>
+            <div>
+              <span className="text-muted-foreground">Dangers:</span>
+              <ul className="list-disc list-inside mt-1">
+                {values.oraDangersIdentifies.map((d: string, i: number) => (
+                  <li key={i}>{d}</li>
+                ))}
+                {values.oraDangersAutre?.trim() && (
+                  <li>{values.oraDangersAutre.trim()}</li>
+                )}
+              </ul>
+            </div>
             {values.oraMesuresCompensatoires?.length > 0 && (
               <div>
                 <span className="text-muted-foreground">Mesures compensatoires:</span>
@@ -124,6 +134,9 @@ export function RecapStep({ form, equipmentName, sensorName, siteName, zoneName,
                   {values.oraMesuresCompensatoires.map((m: string, i: number) => (
                     <li key={i}>{m}</li>
                   ))}
+                  {values.oraMesuresAutre?.trim() && (
+                    <li>{values.oraMesuresAutre.trim()}</li>
+                  )}
                 </ul>
               </div>
             )}

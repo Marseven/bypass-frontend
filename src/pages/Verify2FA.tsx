@@ -4,13 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Loader2, ShieldCheck, KeyRound } from 'lucide-react';
 import axios from 'axios';
 
 export default function Verify2FA() {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { tempToken, awaiting2FA, login, set2FAState } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -45,24 +44,14 @@ export default function Verify2FA() {
       login(res.data.data.user, res.data.data.token);
       set2FAState(false, null);
 
-      toast({
-        title: 'Connexion reussie',
+      toast.success('Connexion reussie', {
         description: 'Verification 2FA reussie.',
-        variant: 'success',
       });
 
-      if (res.data.data.user.role === 'operateur') {
-        navigate('/requests/mine', { replace: true });
-      } else if (res.data.data.user.role === 'user') {
-        navigate('/requests/new', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
+      navigate('/', { replace: true });
     } catch (error: any) {
-      toast({
-        title: 'Erreur de verification',
+      toast.error('Erreur de verification', {
         description: error.response?.data?.message || 'Code invalide. Veuillez reessayer.',
-        variant: 'destructive',
       });
       setIsLoading(false);
     }

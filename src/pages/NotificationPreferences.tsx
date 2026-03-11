@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import api from '../axios';
 
@@ -25,7 +25,6 @@ const CHANNELS = [
 type PreferenceMap = Record<string, Record<string, boolean>>;
 
 const NotificationPreferences = () => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [preferences, setPreferences] = useState<PreferenceMap>(() => {
     const initial: PreferenceMap = {};
@@ -75,15 +74,12 @@ const NotificationPreferences = () => {
       });
 
       await api.put('/notification-preferences', { preferences: prefs });
-      toast({
-        title: 'Préférences sauvegardées',
+      toast.success('Préférences sauvegardées', {
         description: 'Vos préférences de notifications ont été mises à jour.',
       });
     } catch (error: any) {
-      toast({
-        title: 'Erreur',
+      toast.error('Erreur', {
         description: error.response?.data?.message || 'Erreur lors de la sauvegarde.',
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

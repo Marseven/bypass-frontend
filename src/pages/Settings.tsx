@@ -5,12 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import api from '../axios';
 
 const Settings = () => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const [generalSettings, setGeneralSettings] = useState({
@@ -38,15 +37,12 @@ const Settings = () => {
     setIsLoading(true);
     try {
       await api.put('/admin/settings', { settings: generalSettings });
-      toast({
-        title: "Paramètres sauvegardés",
-        description: "Les paramètres généraux ont été mis à jour avec succès.",
+      toast.success('Paramètres sauvegardés', {
+        description: 'Les paramètres généraux ont été mis à jour avec succès.',
       });
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.response?.data?.message || "Erreur lors de la sauvegarde.",
-        variant: "destructive",
+      toast.error('Erreur', {
+        description: error.response?.data?.message || 'Erreur lors de la sauvegarde.',
       });
     } finally {
       setIsLoading(false);

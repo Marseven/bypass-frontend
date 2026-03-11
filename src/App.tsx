@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -10,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuthStore } from "@/store/useAuthStore";
 import { lazy, Suspense, useCallback } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import api from "./axios";
 import { useInactivityLogout } from "./hooks/useInactivityLogout";
 import { Loader2 } from "lucide-react";
@@ -38,6 +37,7 @@ const NotificationPreferences = lazy(() => import("./pages/NotificationPreferenc
 const Verify2FA = lazy(() => import("./pages/Verify2FA"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Forbidden = lazy(() => import("./pages/Forbidden"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -48,7 +48,6 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { user, token, logout } = useAuthStore();
 
@@ -59,8 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       console.error('Auto logout error:', error);
     } finally {
       logout();
-      toast({
-        title: 'Session expirée',
+      toast.info('Session expirée', {
         description: 'Vous avez été déconnecté après une période d\'inactivité.',
       });
       navigate('/login');
@@ -92,7 +90,6 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <Toaster />
           <Sonner />
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
@@ -103,7 +100,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/register" element={<Register />} />
               <Route path="/" element={
-                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'operateur']}>
+                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'operateur', 'technicien', 'instrumentiste', 'user']}>
                   <Layout><Dashboard /></Layout>
                 </ProtectedRoute>
               } />
@@ -113,7 +110,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/requests/new" element={
-                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'technicien', 'instrumentiste', 'user']}>
+                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'supervisor', 'responsable_hse', 'resp_exploitation', 'directeur', 'director', 'technicien', 'instrumentiste', 'operateur', 'user']}>
                   <Layout><Requests /></Layout>
                 </ProtectedRoute>
               } />
@@ -143,7 +140,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/equipment" element={
-                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'resp_exploitation', 'directeur', 'director']}>
+                <ProtectedRoute allowedRoles={['administrateur', 'administrator', 'chef_de_quart', 'responsable_hse', 'resp_exploitation', 'directeur', 'supervisor', 'director']}>
                   <Layout><Equipment /></Layout>
                 </ProtectedRoute>
               } />
@@ -197,6 +194,7 @@ const App = () => (
                   <Layout><Notifications /></Layout>
                 </ProtectedRoute>
               } />
+              <Route path="/forbidden" element={<Forbidden />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

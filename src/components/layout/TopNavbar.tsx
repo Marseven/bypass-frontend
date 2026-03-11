@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/AuthContext"
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import api from '../../axios'
@@ -24,7 +24,6 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { getRoleLabel } from "@/utils/roles"
 
 export function TopNavbar() {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const { users, loading, error, user, logout } = useAuthStore();
@@ -41,17 +40,12 @@ export function TopNavbar() {
 
         logout();
 
-        toast({
-          title: 'Deconnexion reussie',
+        toast.success('Deconnexion reussie', {
           description: 'Impatient de vous revoir.',
-          variant: 'success',
         });
         navigate('/login');
       } else {
-        toast({
-          title: 'Echec de la deconnexion',
-          variant: 'destructive',
-        });
+        toast.error('Echec de la deconnexion');
       }
     })
   };

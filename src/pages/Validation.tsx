@@ -13,7 +13,14 @@ import {
   XCircle,
   User,
   FileText,
+  Eye,
+  Calendar,
+  MapPin,
+  Clock,
+  AlertTriangle,
+  Wrench,
 } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 
 import { useLocation, Link } from "react-router-dom"
 import api from '../axios'
@@ -37,6 +44,7 @@ export default function Validation() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [riskFilter, setRiskFilter] = useState('all');
+  const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuthStore();
 
   const requiresDualValidation = (priority: string) => priority === 'critical' || priority === 'emergency';
@@ -96,7 +104,7 @@ export default function Validation() {
           if (response.data) {
             toast.success(validationStatus === 'approved' ? "Demande approuvée" : "Demande rejetée");
             setRejectionReason(id, '');
-            window.location.reload();
+            setRequestApprobation(prev => prev.filter(r => r.id !== id));
           }
         })
         .catch(error => {
@@ -140,7 +148,7 @@ export default function Validation() {
         setRequestApprobation([]);
       })
       .finally(() => setIsLoading(false));
-  }, [location.key, user])
+  }, [location.key, user, refreshKey])
 
   const filteredRequests = requestApprobation.filter(req => {
     const matchRisk = riskFilter === 'all' || req.priority?.toLowerCase() === riskFilter;
@@ -161,6 +169,17 @@ export default function Validation() {
     { title: "Délai dépassé (> 2h)", value: 0, subtitle: "En attente d'action rapide" },
     { title: "Approuvés aujourd'hui", value: '-', subtitle: "Sur les demandes traitées" },
   ]
+
+  const [detailRequest, setDetailRequest] = useState<any>(null);
+
+  const getDuration = (request: any) => {
+    if (request.start_time && request.end_time) {
+      const diffMs = new Date(request.end_time).getTime() - new Date(request.start_time).getTime();
+      const hours = Math.round(diffMs / (1000 * 60 * 60));
+      return `${hours} heures`;
+    }
+    return 'N/A';
+  };
 
   const getTimeSince = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -240,7 +259,7 @@ export default function Validation() {
             <div className="text-center py-12">
               <XCircle className="w-10 h-10 text-destructive mx-auto mb-3" />
               <p className="text-sm text-muted-foreground mb-3">{error}</p>
-              <Button size="sm" onClick={() => window.location.reload()}>Réessayer</Button>
+              <Button size="sm" onClick={() => setRefreshKey(k => k + 1)}>Réessayer</Button>
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -288,7 +307,7 @@ export default function Validation() {
                         <div>
                           <p className="text-sm">{getMaintenanceLabel(request.title)}</p>
                           <p className="text-xs text-muted-foreground">
-                            Durée: {request.estimated_duration ? `${request.estimated_duration} heures` : 'N/A'}
+                            Durée: {getDuration(request)}
                           </p>
                         </div>
                       </TableCell>
@@ -300,6 +319,10 @@ export default function Validation() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="sm" className="h-8 text-xs"
+                            onClick={() => setDetailRequest(request)}>
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           {getValidationLevel(request) !== null ? (
                             <>
                               <Button variant="outline" size="sm" className="h-8 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
@@ -308,7 +331,7 @@ export default function Validation() {
                               </Button>
                               <Button size="sm" className="h-8 text-xs"
                                 onClick={() => { setApproveTarget(request); setIsApproveDialogOpen(true); }}>
-                                Approuver
+                                {getValidationLevel(request) === 2 ? 'Valider N2' : 'Valider N1'}
                               </Button>
                             </>
                           ) : (
@@ -377,7 +400,7 @@ export default function Validation() {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs uppercase mb-1">Durée</p>
-                  <p>{selectedRequest.estimated_duration ? `${selectedRequest.estimated_duration}h` : 'N/A'}</p>
+                  <p>{getDuration(selectedRequest)}</p>
                 </div>
               </div>
 
@@ -443,7 +466,9 @@ export default function Validation() {
         <Dialog open={isApproveDialogOpen} onOpenChange={(open) => { if (!open) { setIsApproveDialogOpen(false); setApproveTarget(null); } }}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Approuver la demande {approveTarget.request_code}</DialogTitle>
+              <DialogTitle>
+                {getValidationLevel(approveTarget) === 2 ? 'Validation Niveau 2' : 'Validation Niveau 1'} — {approveTarget.request_code}
+              </DialogTitle>
               <DialogDescription>
                 Vérifiez les détails avant de confirmer l'approbation.
               </DialogDescription>
@@ -476,7 +501,7 @@ export default function Validation() {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs uppercase mb-1">Durée</p>
-                  <p>{approveTarget.estimated_duration ? `${approveTarget.estimated_duration}h` : 'N/A'}</p>
+                  <p>{getDuration(approveTarget)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs uppercase mb-1">Validation</p>
@@ -524,8 +549,190 @@ export default function Validation() {
                   setApproveTarget(null);
                 }}>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Confirmer l'approbation
+                {getValidationLevel(approveTarget) === 2 ? 'Confirmer N2' : 'Confirmer N1'}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Detail Dialog */}
+      {detailRequest && (
+        <Dialog open={!!detailRequest} onOpenChange={(open) => { if (!open) setDetailRequest(null); }}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Demande {detailRequest.request_code}
+              </DialogTitle>
+              <DialogDescription>
+                Détails complets de la demande de bypass
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              {/* Status & Priority */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {getRiskBadge(detailRequest.priority)}
+                <Badge variant="outline" className="text-xs font-medium">
+                  {getValidationLevelLabel(detailRequest)}
+                </Badge>
+                {requiresDualValidation(detailRequest.priority) && (
+                  <>
+                    <Badge variant={detailRequest.validation_status_level1 === 'approved' ? 'default' : 'outline'} className="text-xs">
+                      N1: {detailRequest.validation_status_level1 === 'approved' ? 'Approuvé' : 'En attente'}
+                    </Badge>
+                    <Badge variant={detailRequest.validation_status_level2 === 'approved' ? 'default' : 'outline'} className="text-xs">
+                      N2: {detailRequest.validation_status_level2 === 'approved' ? 'Approuvé' : 'En attente'}
+                    </Badge>
+                  </>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Requester & Date */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase mb-1">
+                    <User className="w-3.5 h-3.5" /> Demandeur
+                  </div>
+                  <p className="font-medium">{detailRequest.requester?.full_name || 'N/A'}</p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase mb-1">
+                    <Calendar className="w-3.5 h-3.5" /> Date de demande
+                  </div>
+                  <p className="font-medium">
+                    {new Date(detailRequest.created_at).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+                  </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Equipment & Zone */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase mb-1">
+                    <Wrench className="w-3.5 h-3.5" /> Équipement
+                  </div>
+                  <p className="font-medium">{detailRequest.equipment?.name || 'N/A'}</p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase mb-1">
+                    <MapPin className="w-3.5 h-3.5" /> Zone
+                  </div>
+                  <p className="font-medium">{detailRequest.equipment?.zone?.name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Capteur</p>
+                  <p className="font-mono font-semibold text-primary">{detailRequest.sensor?.code || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Motif</p>
+                  <p className="font-medium">{getMaintenanceLabel(detailRequest.title)}</p>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Duration & Dates */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase mb-1">
+                    <Clock className="w-3.5 h-3.5" /> Durée estimée
+                  </div>
+                  <p className="font-medium">{getDuration(detailRequest)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Type de bypass</p>
+                  <p className="font-medium">{detailRequest.bypass_type_label || detailRequest.bypass_type || 'N/A'}</p>
+                </div>
+                {detailRequest.start_time && (
+                  <div>
+                    <p className="text-muted-foreground text-xs uppercase mb-1">Début prévu</p>
+                    <p className="font-medium">
+                      {new Date(detailRequest.start_time).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </p>
+                  </div>
+                )}
+                {detailRequest.end_time && (
+                  <div>
+                    <p className="text-muted-foreground text-xs uppercase mb-1">Fin prévue</p>
+                    <p className="font-medium">
+                      {new Date(detailRequest.end_time).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Impacts */}
+              {(detailRequest.impact_securite || detailRequest.impact_operationnel || detailRequest.impact_environnemental) && (
+                <>
+                  <Separator />
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    {detailRequest.impact_securite && (
+                      <div>
+                        <p className="text-muted-foreground text-xs uppercase mb-1">
+                          <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />Sécurité
+                        </p>
+                        <p className="font-medium capitalize">{detailRequest.impact_securite}</p>
+                      </div>
+                    )}
+                    {detailRequest.impact_operationnel && (
+                      <div>
+                        <p className="text-muted-foreground text-xs uppercase mb-1">Opérationnel</p>
+                        <p className="font-medium capitalize">{detailRequest.impact_operationnel}</p>
+                      </div>
+                    )}
+                    {detailRequest.impact_environnemental && (
+                      <div>
+                        <p className="text-muted-foreground text-xs uppercase mb-1">Environnemental</p>
+                        <p className="font-medium capitalize">{detailRequest.impact_environnemental}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Description */}
+              {detailRequest.description && (
+                <>
+                  <Separator />
+                  <div>
+                    <p className="text-muted-foreground text-xs uppercase mb-1">Justification</p>
+                    <p className="text-sm bg-muted/50 p-3 rounded">{detailRequest.description}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Mesures */}
+              {detailRequest.mesure_attenuation && (
+                <div>
+                  <p className="text-muted-foreground text-xs uppercase mb-1">Mesures d'atténuation</p>
+                  <p className="text-sm bg-muted/50 p-3 rounded">{detailRequest.mesure_attenuation}</p>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="gap-2 mt-4">
+              <Button variant="outline" onClick={() => setDetailRequest(null)}>
+                Fermer
+              </Button>
+              {getValidationLevel(detailRequest) !== null && (
+                <>
+                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={() => { setSelectedRequest(detailRequest); setIsDialogOpen(true); setDetailRequest(null); }}>
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Refuser
+                  </Button>
+                  <Button size="sm"
+                    onClick={() => { setApproveTarget(detailRequest); setIsApproveDialogOpen(true); setDetailRequest(null); }}>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {getValidationLevel(detailRequest) === 2 ? 'Valider N2' : 'Valider N1'}
+                  </Button>
+                </>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
