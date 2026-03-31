@@ -85,7 +85,25 @@ export function AppSidebar() {
 
   useEffect(() => {
     const fetchCounts = () => {
-      if (user && user.role !== 'user' && user.role !== 'operateur') {
+      if (!user) return;
+
+      // Fetch user's own active bypasses (visible to all roles)
+      api.get('/requests/mine')
+        .then(response => {
+          const items = Array.isArray(response.data)
+            ? response.data
+            : response.data?.data && Array.isArray(response.data.data)
+              ? response.data.data
+              : [];
+          const activeCount = items.filter((r: any) =>
+            ['pending', 'approved', 'active'].includes(r.status)
+          ).length;
+          setActiveBypassCount(activeCount);
+        })
+        .catch(() => setActiveBypassCount(0));
+
+      // Fetch pending approvals (only for validator roles)
+      if (!['user', 'operateur', 'technicien', 'instrumentiste'].includes(user.role)) {
         api.get('/requests/pending')
           .then(response => {
             let count = 0;
@@ -97,18 +115,6 @@ export function AppSidebar() {
             setPendingCount(count);
           })
           .catch(() => setPendingCount(0));
-
-        api.get('/requests?status=approved')
-          .then(response => {
-            let count = 0;
-            if (Array.isArray(response.data)) {
-              count = response.data.length;
-            } else if (response.data?.data && Array.isArray(response.data.data)) {
-              count = response.data.data.length;
-            }
-            setActiveBypassCount(count);
-          })
-          .catch(() => setActiveBypassCount(0));
       }
     };
 

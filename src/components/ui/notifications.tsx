@@ -105,8 +105,9 @@ export default function Tinting({ userId, notification, onNotificationUpdate }) 
           });
           
           // Afficher un toast pour les nouvelles notifications
-          toast.info('Nouvelle notification', {
+          toast('Nouvelle notification', {
             description: notificationData.description || notificationData.title || 'Vous avez une nouvelle notification',
+            icon: '🔔',
           });
         });
 

@@ -61,7 +61,7 @@ export const BypassRequestForm = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingAs, setSubmittingAs] = useState<'draft' | 'submit' | null>(null);
   const [equipmentInfo, setEquipmentInfo] = useState<any>(null);
 
   const form = useForm<RequestFormData>({
@@ -150,7 +150,7 @@ export const BypassRequestForm = () => {
       // ORA step - custom validation
       const dangers = form.getValues('oraDangersIdentifies');
       const mesures = form.getValues('oraMesuresCompensatoires');
-      if (!dangers || dangers.trim().length === 0) {
+      if (!dangers || (Array.isArray(dangers) ? dangers.length === 0 : String(dangers).trim().length === 0)) {
         form.setError('oraDangersIdentifies', { message: 'Les dangers doivent être identifiés' });
         return false;
       }
@@ -186,7 +186,7 @@ export const BypassRequestForm = () => {
       if (!valid) return;
     }
 
-    setIsSubmitting(true);
+    setSubmittingAs(isDraft ? 'draft' : 'submit');
 
     try {
       const values = form.getValues();
@@ -194,7 +194,7 @@ export const BypassRequestForm = () => {
       if (isDraft) {
         if (!values.equipmentId || !values.sensorId) {
           toast.error('Veuillez sélectionner un équipement et un capteur avant de sauvegarder le brouillon');
-          setIsSubmitting(false);
+          setSubmittingAs(null);
           return;
         }
       }
@@ -259,7 +259,7 @@ export const BypassRequestForm = () => {
       const message = error.response?.data?.message || 'Erreur lors de la soumission';
       toast.error(message);
     } finally {
-      setIsSubmitting(false);
+      setSubmittingAs(null);
     }
   };
 
@@ -329,17 +329,17 @@ export const BypassRequestForm = () => {
                       type="button"
                       variant="outline"
                       onClick={() => submitForm(true)}
-                      disabled={isSubmitting}
+                      disabled={submittingAs !== null}
                     >
-                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                      {submittingAs === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       Sauvegarder brouillon
                     </Button>
                     <Button
                       type="button"
                       onClick={() => submitForm(false)}
-                      disabled={isSubmitting}
+                      disabled={submittingAs !== null}
                     >
-                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                      {submittingAs === 'submit' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                       Soumettre
                     </Button>
                   </>
